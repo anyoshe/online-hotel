@@ -1,0 +1,59 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: roboto;
+    font-size: 17px;
+    background-image: url(../assets.);
+    line-height: 1;
+    height: 100vh;
+}
+
+h2 {
+   text-align: center; 
+   font-size: 22px;
+   font-weight: 800;
+   padding: 15px;
+   margin: 10px;
+}
+.dish {
+    border: 1px solid #ccc;
+    width: 11em;
+    margin: 10px;
+    padding: 10px;
+    text-align: center;
+    line-height: 1.5;
+    box-shadow: 0 6px 8px 0;
+
+}
+#dishesContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    width: 50%;
+
+}
+h3 {
+    margin-left: 22%;
+    color: rgb(126, 10, 10);
+    font-weight: 800;
+    padding: 10px;
+}
+
+button {
+    background-color: #5a9b6f;
+    border: none;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 17px;
+    border-radius: 5px;
+    cursor: pointer; 
+    margin: 10px;
+    box-shadow: 0 6px 8px 0;
+    
+}

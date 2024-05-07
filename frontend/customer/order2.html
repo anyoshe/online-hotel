@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Form</title>
+    <link rel="stylesheet" href="order2.css">
+    <!-- <style>
+        #myForm {
+            display: none;
+        }
+
+    </style> -->
+</head>
+<body>
+    <!--  <button type="button" onclick="openForm()">Add to Cart</button>onsubmit="closeForm(); return false;" -->
+    <div id="myForm"> 
+    <!-- <h1>Order Form</h1> -->
+     <div id="orderForm">
+        <div id="customerDetails">
+        <h3> Your Order</h3>
+        <label for="customerName">Name:</label>
+        <input type="text" id="customerName" required><br>
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="text" id="phoneNumber" required><br>
+        <label for="customerLocation">Location:</label>
+        <input type="text" id="customerLocation" required><br>
+        <label for="expectedDeliveryTime">Expected Time:</label>
+        <input type="time" id="expectedDeliveryTime" required><br>
+       </div>
+       <div id="dishSelection">
+        <h3>Select Dishes</h3>
+        <select id="dishDropdown"></select><br>
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" min="1" value="1"><br>
+        <button onclick="addToCart()">Add to Cart</button>
+        </div>
+    </div>
+    <div id="cartDiv">
+       <div id="cart">
+        <h3>Cart</h3>
+        <ul id="cartItems"></ul> <br> <br>
+        <p>Total Price: Kes.<span id="totalPrice">0</span></p> <br><br>
+        <!-- <button onclick="placeOrder()">Place Order</button> -->
+       </div>
+       <div id="orderButton">
+        <button type="button" onclick="placeOrder()">Place Order</button>
+        <button type="submit">Close</button>
+       </div>
+    </div>
+    </div>
+    <div id="messageContainer"></div> <!-- This is the container for displaying messages -->
+
+</div>
+    <script src="order2.js"></script>
+    
+    <!-- <script>
+        function openForm() {
+            document.getElementById("myForm").style.display = "block";
+        
+        }
+        function closeForm() {
+            document.getElementById("myForm").style.display = "none";
+        }
+    </script> -->
+</body>
+</html>
