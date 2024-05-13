@@ -25,6 +25,12 @@
                     <label for="dishPrice" class="label">Dish Price :</label>
                     <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice" class="input"
                         required><br>
+                    <label for="dishCategory" class="label">Dish Category :</label>
+                    <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory"
+                            class="input" required><br>
+                    <label for="restaurant" class="label">Restaurant :</label>
+                    <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant"
+                                class="input" required><br>
                     <label for="dishDescription" class="label">Dish Description :</label>
                     <input type="text" name="dishDescription" placeholder="Description Of Dish" id="dishDescription"
                         class="input" required><br>
@@ -33,18 +39,25 @@
             </div>
             <div class="updateDish">
                 <h4>Update Dish Details</h4>
-                <form id="updateDishForm"> 
+                <form id="updateDishForm">
                     <label for="dishCode">Dish Code: </label>
                     <input type="text" id="dishCode" name="dishCode" class="input" required><br>
 
                     <label for="dishName">New Dish Name: </label>
-                    <input type="text" id="updateDishName" name="dishName"  class="input"><br>
+                    <input type="text" id="updateDishName" name="dishName" class="input"><br>
 
                     <label for="dishPrice">New Dish Price: </label>
                     <input type="number" id="updateDishPrice" name="dishPrice" class="input"><br>
 
                     <label for="quantity">New Quantity: </label>
-                    <input type="number" id="updateQuantity" name="quantity"  class="input"><br>
+                    <input type="number" id="updateQuantity" name="quantity" class="input"><br>
+
+                    <label for="dishCategory" class="label">New Dish Category :</label>
+                <input type="text" name="dishCategory" id="updateDishCategory"
+                            class="input"><br>
+                    <label for="restaurant" class="label">New Restaurant :</label>
+                    <input type="text" name="restaurant" id="updateRestaurant"
+                                class="input"><br>
 
                     <label for="dishDescription">New Dish Description: </label>
                     <input type="text" id="updateDishDescription" name="dishDescription" class="input"><br>
@@ -53,46 +66,46 @@
                 </form>
             </div>
             <div class="deleSearch">
-            <div class="dishDetails">
-                <h4>Delete Dish</h4>
-                <label for="dishIdentifier">Enter Dish Code or Name:</label>
-                <input type="text" id="dishIdentifier" placeholder="Dish Code or Name">
-                <!-- <button onclick="getDishDetails()">Get Details</button> -->
-                 <button onclick="confirmDeleteDish()">Delete</button>
-                 <div id="dishDetailsContainer"></div>
+                <div class="dishDetails">
+                    <h4>Delete Dish</h4>
+                    <label for="dishIdentifier">Enter Dish Code or Name:</label>
+                    <input type="text" id="dishIdentifier" placeholder="Dish Code or Name">
+                    <!-- <button onclick="getDishDetails()">Get Details</button> -->
+                    <button onclick="confirmDeleteDish()">Delete</button>
+                    <div id="dishDetailsContainer"></div>
+                </div>
+
+                <div class="searchDish">
+                    <h4>Search for Dish</h4>
+                    <label for="searchQuery">Enter Dish Code or Name:</label>
+                    <input type="text" id="searchQuery" placeholder="Dish Code or Name">
+                    <button onclick="searchDish()">Search</button>
+                    <div id="searchResults"></div>
+                </div>
+
+            </div>
+        </div>
+        <div class="orderControl">
+            <div class="allDishes">
+                <h4>All Dishes</h4>
+                <button onclick="fetchAllDishes()">Fetch All Dishes</button>
+                <div id="dishContainer"></div>
             </div>
 
-            <div class="searchDish">
-                <h4>Search for Dish</h4>
-                <label for="searchQuery">Enter Dish Code or Name:</label>
-                <input type="text" id="searchQuery" placeholder="Dish Code or Name">
-                <button onclick="searchDish()">Search</button>
-                <div id="searchResults"></div>
+            <div class="dayOrders">
+                <h4>Order Management System</h4>
+                <button id="fetchOrdersBtn">Fetch Orders</button>
+                <div id="ordersList"></div>
+                <p>Expected Sales: Kes.<span id="totalSalesExpected">0</span></p>
+                <p>Expected Commission: Kes.<span id="commissionExpected">0</span></p><br>
+                <h4>pending Orders</h4>
+                <button id="fetchOrdersBtn">Fetch Orders</button>
+                <div id="ordersList"></div>
+                <p>Total Sales: Kes.<span id="totalSales">0</span></p>
+                <p>Commission Due: Kes.<span id="commissionDue">0</span></p>
+                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
             </div>
-            
-            </div>
         </div>
-     <div class="orderControl">
-        <div class="allDishes">
-            <h4>All Dishes</h4>
-            <button onclick="fetchAllDishes()">Fetch All Dishes</button>
-            <div id="dishContainer"></div>
-        </div>
-
-        <div class="dayOrders">
-            <h4>Order Management System</h4>
-            <button id="fetchOrdersBtn">Fetch Orders</button>
-          <div id="ordersList"></div>
-          <p>Expected Sales: Kes.<span id="totalSalesExpected">0</span></p>
-    <p>Expected Commission: Kes.<span id="commissionExpected">0</span></p><br>
-              <h4>pending Orders</h4>
-              <button id="fetchOrdersBtn">Fetch Orders</button>
-    <div id="ordersList"></div>
-    <p>Total Sales: Kes.<span id="totalSales">0</span></p>
-    <p>Commission Due: Kes.<span id="commissionDue">0</span></p>
-    <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
-        </div>
-     </div>
 
     </div>
 

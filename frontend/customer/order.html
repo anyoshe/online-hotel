@@ -5,55 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Our Dishes</title>
     <link rel="stylesheet" href="order.css">
+    <head>
+      </head>
+      
 </head>
 <body>
     <h2>Welcome to our Restaurant! </h2>
 <div id="customer-container">
     <div class="dishes">
-    <h3>Our Dishes</h3>
+      
+    <div id="dishSelection">
+      <div id="cuisineSelection">
+        <!-- <h4>Our Cuisines/Dishes</h4> -->
+        <div class="cuisines-container" id="categoryList">
+      <button value="Local Dishes" class="selected" onclick="handleCuisineClick('Local Dishes')">Local Dishes </button> <br>
+      <button value="African Dishes" class="selected" onclick="handleCuisineClick('African Dishes')">African Dishes  </button> <br>
+      <button value="Swahili Dishes" class="selected" onclick="handleCuisineClick('Swahili Dishes')">Swahili Dishes  </button> <br>
+      <button value="Indian Dishes" class="selected" onclick="handleCuisineClick('Indian Dishes')">Indian Dishes </button> <br>
+      <button value="Italian Dishes" class="selected" onclick="handleCuisineClick('Italian Dishes')">Italian Dishes </button> <br>
+      <button value="Sea Food" class="selected" onclick="handleCuisineClick('Sea Foods')">Sea Foods </button> <br>
+      <button value="Chinese Food" class="selected" onclick="handleCuisineClick('Chinese Foods')">Chinese Foods </button> <br>
+      <button value="specialOrders" class="selected" onclick="handleCuisineClick('specialOrders')">Special Order </button> <br>
+      </div>
+      <div class="restaurants">
+         <h4>Restaurants</h4>
+        <div id="restaurantList"></div>
+      </div>
+    </div>
+      <h3>Select Dishes</h3>
+      <p id="category">Cuisine/Dish Type</p>
+      <select id="categoryDropdown">
+        <option value="value">Choose your Cuisine</option>
+        <option value="Local Dishes">Local Dishes</option>
+        <option value="African Dishes">African Dishes</option>
+        <option value="Swahili Dishes">Swahili Dishes</option>
+        <option value="Indian DIshes">Indian Dishes</option>
+        <option value="Italian Dishes">Italian Dishes</option>
+        <option value="Sea Foods">Sea Foods</option>
+        <option value="Chinese Foods">Chinese Foods</option>
+        <option value="specialOrders">Special Order</option>
+      </select><br>
+      <p id="restaurant">From which Restaurant</p>
+      <select id="restaurantDropdown"></select><br>
+      <p id="dishName">Dish Name</p>
+      <select id="dishDropdown"></select><br>
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" min="1" value="1"><br>
+      <button onclick="addToCart()">Add to Cart</button>
+      </div>
     <div id="dishesContainer"></div>
     </div>
 
     <div id="myForm"> 
-        <!-- <h1>Order Form</h1> -->
+        <h3>Order Form</h3> 
          <div id="orderForm">
             <div id="customerDetails">
-            <h3> Your Order</h3>
-            <label for="customerName">Name:</label>
+            <label for="customerName">Name:</label><br>
             <input type="text" id="customerName" required><br>
             <label for="phoneNumber">Phone Number:</label>
             <input type="text" id="phoneNumber" required><br>
-            <label for="customerLocation">Location:</label>
-            <input type="text" id="customerLocation" required><br>
-            <label for="expectedDeliveryTime">Expected Time:</label>
+            <p><b>Selected Category:</b> <span id="selectedCategory"></span></p>
+            <p><b>Restaurant:</b> <span id="selectedRestaurant"></span></p>
+            <label for="expectedDeliveryTime">What time do you expect your dish?</label>
             <input type="time" id="expectedDeliveryTime" required><br>
-           </div>
-           <div id="dishSelection">
-            <h3>Select Dishes</h3>
-            <select id="dishDropdown"></select><br>
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" min="1" value="1"><br>
-            <button onclick="addToCart()">Add to Cart</button>
-            </div>
+            <label for="deliveryLocation">Delivery Location:</label><br>
+            <input type="text" id="customerLocation" hidden required>
+              <div id="customerMap">
+                <div id="mapContainer" class="map-container"  style="width: 100%; height: 200px;">  
+                </div></div>
+                <select id="location-select">
+                  <option value="">Select your location-Town</option>
+                  <option value="malindi">Malindi</option>
+                  <option value="watamu">Watamu</option>
+                  <option value="kilifi">Kilifi</option>
+                  <option value="mombasa">Mombasa</option>
+                  <option value="lamu">Lamu</option>
+                </select>
+                <input type="hidden" id="customerLocation" name="selectedLocation" value="">
+              </div>
+              <button id="useMyLocationButton" onclick="getLocation()">Use My Location</button>
+           </div> 
+           <div id="cartDiv">
+            <div id="cart">
+             <h3>Your Dishes</h3>
+             <ul id="cartItems"></ul> <br> <br>
+             <p>Total Price: Kes.<span id="totalPrice">0</span></p> <br>
+            </div> 
+            <div id="orderButton">
+             <button type="button" onclick="placeOrder()">Place Order</button>
+             </div>
+         </div>
         </div>
-        <div id="cartDiv">
-           <div id="cart">
-            <h3>Cart</h3>
-            <ul id="cartItems"></ul> <br> <br>
-            <p>Total Price: Kes.<span id="totalPrice">0</span></p> <br><br>
-            <!-- <button onclick="placeOrder()">Place Order</button> -->
-           </div>
-           <div id="orderButton">
-            <button type="button" onclick="placeOrder()">Place Order</button>
-            <button type="submit">Close</button>
-           </div>
         </div>
-        </div>
-        <div id="messageContainer"></div> <!-- This is the container for displaying messages -->
+        <!-- <div id="messageContainer"></div> This is the container for displaying messages -->
     
     </div>
+    <!-- Modal for Order Summary -->
+<div id="orderSummaryModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p id="orderSummary"></p>
+    <p><b>Selected Category:</b> <span id="selectedCategory"></span></p>
+  <p><b>Restaurant:</b> <span id="selectedRestaurant"></span></p>
+  </div>
+
+</div>
+
         <!-- <script src="order2.js"></script> -->
 
-    <script src="order.js"></script>
+    <script defer src="order.js"></script>
 </body>
 </html>

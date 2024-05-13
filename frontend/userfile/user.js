@@ -8,8 +8,10 @@ document.getElementById('submitButton').addEventListener('click', async (event) 
         dishName: document.getElementById('dishName').value,
         Quantity: document.getElementById('quantity').value,
         dishPrice: document.getElementById('dishPrice').value,
+        dishCategory: document.getElementById('dishCategory').value,
+        restaurant: document.getElementById('restaurant').value,
         dishDescription: document.getElementById('dishDescription').value
-    };
+    }; 
 
     try {
         // Send a POST request to add the dish
@@ -52,6 +54,8 @@ document.getElementById('updateDishForm').addEventListener('submit', async (even
         document.getElementById('updateDishName').value = data.dishName || '';
         document.getElementById('updateDishPrice').value = data.dishPrice || '';
         document.getElementById('updateQuantity').value = data.Quantity || '';
+        document.getElementById('updateDishCategory').value = data.dishCategory || '';
+        document.getElementById('updateRestaurant').value = data.restaurant || '';
         document.getElementById('updateDishDescription').value = data.dishDescription || '';
 
         // Send PUT request to update the dish

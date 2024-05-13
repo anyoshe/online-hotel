@@ -1,5 +1,5 @@
 // Fetch dishes from backend
-async function fetchDishes() {
+async function fetchToSelectDishes() {
     try {
         const response = await fetch('http://localhost:3000/api/dishes');
         const responseData = await response.json();
@@ -134,4 +134,4 @@ function displayMessage(message, type) {
 // function placeOrder()  placing order from display
 
 
-window.onload = fetchDishes;
+window.onload = fetchToSelectDishes; 

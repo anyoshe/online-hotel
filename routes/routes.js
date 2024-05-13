@@ -21,6 +21,8 @@ const dishSchema = new Schema({
     dishName: { type: String, required: true}, 
     quantity: { type: Number, required: true, default: 1},
     dishPrice: { type: Number, required: true},
+    dishCategory: { type: String, required: true},
+    restaurant: { type: String, required: true},
     subTotal: {type: Number,  required: false, default: 0},
     dishDescription: { type: String, required: true},
 }); 
@@ -39,6 +41,8 @@ const orderSchema = new Schema({
     orderId: { type: String, required: true, unique: true },
     customerName: { type: String, required: true },
     phoneNumber: { type: String, required: true },
+    selectedCategory: { type: String },
+    selectedRestaurant: { type: String },
     customerLocation: { type: String, required: true },
     expectedDeliveryTime: { type: String, required: true },
     dishes: [
@@ -75,6 +79,8 @@ router.put('/dishes/:dishCode', [
     body('dishName').optional().isString(),
     body('dishPrice').optional().isNumeric(),
     body('Quantity').optional().isNumeric(),
+    body('dishCategory').optional().isString(),
+    body('restaurant').optional().isString(),
     body('dishDescription').optional().isString()
 ], async (req, res) => {
     try {
@@ -96,6 +102,12 @@ router.put('/dishes/:dishCode', [
         }
         if (req.body.Quantity) {
             updatedFields.Quantity = req.body.Quantity;
+        }
+        if (req.body.dishCategory) {
+            updatedFields.dishCategory = req.body.dishCategory;
+        }
+        if (req.body.restaurant) {
+            updatedFields.restaurant = req.body.restaurant;
         }
         if (req.body.dishDescription) {
             updatedFields.dishDescription = req.body.dishDescription;
@@ -140,7 +152,7 @@ router.delete('/dishes/:identifier', async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Failed to delete dish', message: error.message });
     }
-});
+}); 
 
 // Route to search for a dish by dishCode or dishName
 router.get('/dishes/search', async (req, res) => {
@@ -170,6 +182,7 @@ router.get('/dishes/search', async (req, res) => {
 });
 
 
+
    //getting all dishes
    router.get('/dishes', async (req, res) => {
     try {
@@ -194,9 +207,46 @@ router.get('/dishes/search', async (req, res) => {
        res.status(500).send(error);
     }
    });
-  
-  
+   
+  //fetching restaurants
+  router.get('/restaurants/:cuisineType', async (req, res) => {
+    try {
+        const cuisineType = req.params.cuisineType;
+        const restaurants = await Dish.find({ dishCategory: cuisineType }).distinct('restaurant').exec();
+        
+        // Remove duplicates
+        const uniqueRestaurants = [...new Set(restaurants)]; 
+        
+        res.json(uniqueRestaurants); // Send the restaurants as JSON
+    } catch (error) {
+        console.error('Error fetching restaurants:', error);
+        // Send a JSON response with an error message
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
+//fetching dishes for particular restaurant
+router.get('/restaurantDishes', async (req, res) => {
+    const restaurantName = req.query.restaurant; // Access restaurant name from query parameter
+
+    try {
+      const restaurantName = req.query.restaurant; // Access restaurant name from query parameter
+  
+      if (!restaurantName) {
+        // Fetch all dishes if no restaurant specified (default behavior)
+        const dishes = await Dish.find().exec();
+        return res.json({dishes});
+      }
+      const lowerCaseRestaurantName = restaurantName.toLowerCase(); // Convert to lowercase
+      // Replace with your actual database query logic
+       // Replace with your actual database query logic with case-insensitive comparison
+    const dishes = await Dish.find({ restaurant: { $regex: lowerCaseRestaurantName, $options: 'i' } }).exec();
+      res.json({dishes}); 
+    } catch (error) {
+      console.error('Error fetching dishes:', error);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
   // working with orders from the customer
 
   //Function to generate custom order IDs
@@ -216,7 +266,15 @@ async function createOrder(orderData) {
     try {
         const orderId = await generateOrderId(); // Generate custom order ID
         orderData.orderId = orderId; // Assign custom ID to the order data
-        const newOrder = new Order(orderData);
+        const { selectedCategory, selectedRestaurant, ...otherOrderData } = orderData;
+        const newOrder = new Order({
+            ...otherOrderData,
+            selectedCategory,
+            selectedRestaurant
+            });
+            if (!selectedCategory || !selectedRestaurant) {
+                throw new Error('Missing required order details: selectedCategory and selectedRestaurant');
+            }
         const savedOrder = await newOrder.save();
         return savedOrder;
     } catch (error) {
