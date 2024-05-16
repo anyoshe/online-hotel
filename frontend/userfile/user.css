@@ -6,34 +6,37 @@
 
 html, body {
     font-family: roboto;
-    font-size: 22px;
+    font-size: 15px;
     /* background-image: url(../assets.); */
     line-height: 1.5;
     height: 100vh;
 }
 h4 {
     text-align: center;
+    font-size: 17px;
     padding: 5px;
     font-weight: 800;
+    color: red;
 }
 .page-content {
     margin: 0 auto;
     padding: 0 20px;
     display: flex;
-     flex-direction: column; 
+     flex-direction: row; 
     justify-content: space-evenly;
+    height: 90%;
+    /* overflow-y: scroll; */
     
 
 }
 .dishControl {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    float: left;
     justify-content: space-evenly;
     align-content: space-evenly;
-    /* margin-top: 0.5em; */
-    width: 100%; 
-    justify-content: center;
-    align-items: center;
+    margin-top: 3.5em;
+   width: 20%;
 }
 
 .allDishes button {
@@ -46,43 +49,52 @@ h4 {
    cursor: pointer; 
    margin: 10px;
 }
- .addDish {
+.modal-content {
     background-color: whitesmoke;
     padding: 5px;
-    width: 50%;
-    /* height: 22em; */
+    /* width: 50%; */
     justify-content: space-evenly;
     align-content:center ;
     align-items: center;
+    justify-content: center;
     margin: 10px;
     border-radius: 15px;
-    box-shadow: 0 6px 8px 0;
     
  } 
- .addDish button, .updateDish button {
+ #addDishForm, #updateDishForm {
+   display: flex;
+   flex-direction: column;
+   /* justify-content: center; */
+   /* align-content: center; */
+   align-items: center;
+ }
+ #submitButton {
     border: none;
-    background-color: rgb(224, 216, 216);
+    background-color: red;
+    color: white;
     padding: 5px;
     width: 40%;
-    font-size: 17px;
+    font-size: 15px;
     border-radius: 10px;
     cursor: pointer; 
     margin: 10px;
-    margin-left: 30%;
     font-weight: 700;
-    box-shadow: 0 6px 8px 0;
+    box-shadow: 0 4px 6px 0;
 
  }
  .input {
-    width: 100%;
-    padding: 10px;
+    width: 80%;
+    padding: 6px;
     border: 1px solid #ccc;
-    box-shadow: 0 6px 8px 0;
-    border-radius: 4px;
-    box-sizing: border-box;
+    border-radius: 5px;
     margin-top: 3px;
     margin-bottom: 3px;
-    resize: vertical; 
+   
+ }
+ label {
+    font-size: 15px;
+    font-weight: bold;
+   text-align: center;
  }
  .updateDish {
     background-color: wheat;;
@@ -124,7 +136,7 @@ h4 {
  }
  .deleSearch {
     padding: 5px;
-    width: 50%;
+    /* width: 0%; */
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -136,9 +148,9 @@ h4 {
 
  .searchDish, .dishDetails {
     text-align: center;
-    margin: 15px;
+    margin: 5px;
     /* border: 1px solid #be9696; */
-    box-shadow: 0 6px 8px 0;
+    /* box-shadow: 0 6px 8px 0; */
  }
 
  .deleSearch button {
@@ -146,73 +158,67 @@ h4 {
     border: none;
     background-color: rgb(224, 216, 216);
     padding: 5px;
-    width: 25%;
-    font-size: 15px;
-    border-radius: 10px;
+    /* width: 25%; */
+    font-size: 12px;
+    border-radius: 5px;
     cursor: pointer;
     margin: 10px;
     font-weight: 700;
-    box-shadow: 0 6px 8px 0;
+    /* box-shadow: 0 6px 8px 0; */
  }
  
  .deleSearch input {
-    width: 80%;
+    width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     /* box-sizing: border-box; */
     margin-top: 3px;
     margin-bottom: 3px;
-    resize: vertical;
-    box-shadow:  0 6px 8px 0;
+    /* resize: vertical; */
+    /* box-shadow:  0 6px 8px 0; */
  }
 
  .orderControl {
-    display: flex;
-    flex-direction: row;
     justify-content: space-evenly;
-    align-content: space-evenly;
-    /* margin-top: 0.5em; */
+    align-content: space-evenly; 
+    border: 1px solid #666;
     width: 100%; 
-    justify-content: center;
+    overflow-y: scroll;
+    /* justify-content: center; */
     /* align-items: center;*/
  } 
 
  .dayOrders {
-    width: 30%;
-    /* float: right; */
     display: flex;
     flex-direction: column;
-    margin: 10px;
-    align-items: center;
-    margin-top: 30px;
+    width: 100%;
+   
  }
 
  .orderControl button {
     border: none;
     background-color: rgb(224, 216, 216);
     padding: 5px;
-    width: 30%;
+    width: 80%; 
     font-size: 15px;
     border-radius: 10px;
     cursor: pointer;
     margin: 10px;
     font-weight: 700;
-    box-shadow: 0 6px 8px 0;
+    /* box-shadow: 0 6px 8px 0; */
  }
  
 #ordersList {
     display: flex;
     flex-direction: column;
+    /* flex-wrap: wrap; */
     justify-content: space-evenly;
-    align-content:center ;
-    align-items: center;
     margin-top: 10px;
     border-radius: 15px;
-    resize: vertical;
-    width: 100%;
-    font-size: 17px;
-    justify-content: center;
+    width: 100%; 
+    font-size: 12px;
+     justify-content: center;
 }
 
 #ordersList li {
@@ -227,10 +233,12 @@ h4 {
 }
 
 #ordersList div {
-   border: 1px solid #1f1d1dcc;
+   border: 1px solid #1f1d1dcc; 
    margin: 5px;
-   width: 15em;
+   justify-content: center;
+   text-align: center;
    padding: 5px;
+   width: ;
 }
 
 #dishContainer div {
@@ -248,7 +256,68 @@ h4 {
    flex-wrap: wrap;
 }
 #ordersList button {
-   width: 50%;
-   margin-left: 23%;
+   width: 100%;
+   border: none;
+   justify-content: center;
+   align-content: center;
+   align-items: center;
+
+}
+.hidden {
+   display: none;
 }
 
+.modal {
+   position: fixed;
+   z-index: 1;
+   left: 30;
+   top: 0;
+   width: 40%;
+   /* height: 100%;  */
+   overflow: auto;
+}
+
+.modal-content {
+   background-color: #fefefe;
+   margin-top: 4%;
+   /* padding: 20px; */
+   border: 1px solid #888;
+   width: 80%;
+}
+
+#closeModalBtn, #closeUpdateModalBtn {
+   font-size: 20px;
+   float: right;
+   cursor: pointer;
+   color: #aaa;
+ padding: 1px 4px;
+ 
+
+}
+
+#closeModalBtn:hover,
+#closeModalBtn:focus,
+#closeUpdateModalBtn:hover,
+#closeUpdateModalBtn:focus {
+   color: white;
+   text-decoration: none;
+   cursor: pointer;
+   background-color: red;
+}
+ 
+[id^="orders-"] {
+   display: flex;
+   justify-content: space-evenly;
+}
+div[id$="-section"] h2 {
+   color: blue; /* Example styling */
+   text-transform: uppercase;
+   font-size: 17px;
+   text-align: center;
+}
+
+div[id$="-section"] {
+   display: flex;
+   flex-direction: column;
+   justify-content: space-between;
+}

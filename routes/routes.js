@@ -322,6 +322,8 @@ router.get('/orders', async (req, res) => {
                 orderId: order.orderId,
                 customerName: order.customerName,
                 phoneNumber: order.phoneNumber,
+                selectedCategory: order.selectedCategory,
+                selectedRestaurant: order.selectedRestaurant,
                 customerLocation: order.customerLocation,
                 expectedDeliveryTime: order.expectedDeliveryTime,
                 orderedDishes: order.dishes.map(dish => {

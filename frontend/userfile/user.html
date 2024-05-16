@@ -12,58 +12,74 @@
     <h4 class="page-header">Welcome to Online Restaurant Management System(ORMS)</h4>
     <div class="page-content">
         <div class="dishControl">
-            <div class="addDish">
-                <form action="" class="addDishForm" id="addDishForm">
-                    <h4>Add New Dish Here!</h4>
-                    <label for="dishCode" class="dishCode">Dish Code :</label>
-                    <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input" required><br>
-                    <label for="dishName" class="dishName">Dish name :</label>
-                    <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input" required><br>
-                    <label for="quantity" class="quantity">Quantity :</label>
-                    <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input"
-                        required><br>
-                    <label for="dishPrice" class="label">Dish Price :</label>
-                    <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice" class="input"
-                        required><br>
-                    <label for="dishCategory" class="label">Dish Category :</label>
-                    <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory"
-                            class="input" required><br>
-                    <label for="restaurant" class="label">Restaurant :</label>
-                    <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant"
-                                class="input" required><br>
-                    <label for="dishDescription" class="label">Dish Description :</label>
-                    <input type="text" name="dishDescription" placeholder="Description Of Dish" id="dishDescription"
-                        class="input" required><br>
-                    <button id="submitButton" class="addButton">Add Dish</button>
-                </form>
+
+            <button id="openModalBtn">Add New Dishes</button>
+
+            <div id="modalContainer" class="hidden">
+                <div class="modal">
+                    <div class="modal-content">
+                        <button type="button" id="closeModalBtn">&times;</button>
+                        <form action="" class="addDishForm" id="addDishForm">
+                            <h4>Add New Dish!</h4>
+                            <label for="dishCode" class="dishCode">Dish Code :</label>
+                            <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input"
+                                required>
+                            <label for="dishName" class="dishName">Dish name :</label>
+                            <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input"
+                                required>
+                            <label for="quantity" class="quantity">Quantity :</label>
+                            <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input"
+                                required>
+                            <label for="dishPrice" class="label">Dish Price :</label>
+                            <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice"
+                                class="input" required>
+                            <label for="dishCategory" class="label">Dish Category :</label>
+                            <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory"
+                                class="input" required>
+                            <label for="restaurant" class="label">Restaurant :</label>
+                            <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant" class="input"
+                                required>
+                            <label for="dishDescription" class="label">Dish Description :</label>
+                            <input type="text" name="dishDescription" placeholder="Description Of Dish"
+                                id="dishDescription" class="input" required>
+                            <button id="submitButton" class="addButton">Add Dish</button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="updateDish">
-                <h4>Update Dish Details</h4>
-                <form id="updateDishForm">
-                    <label for="dishCode">Dish Code: </label>
-                    <input type="text" id="dishCode" name="dishCode" class="input" required><br>
 
-                    <label for="dishName">New Dish Name: </label>
-                    <input type="text" id="updateDishName" name="dishName" class="input"><br>
+            <button id="updateModalBtn">Update Your Dishes</button>
 
-                    <label for="dishPrice">New Dish Price: </label>
-                    <input type="number" id="updateDishPrice" name="dishPrice" class="input"><br>
+            <div id="updateModalContainer" class="hidden">
+                <div class="modal">
+                    <div class="modal-content">
+                        <button type="button" id="closeUpdateModalBtn">&times;</button>
+                        <form id="updateDishForm">
+                            <h4>Update Your Dishes!</h4>
+                            <label for="dishCode">Dish Code: </label>
+                            <input type="text" id="dishCode" name="dishCode" class="input" required>
 
-                    <label for="quantity">New Quantity: </label>
-                    <input type="number" id="updateQuantity" name="quantity" class="input"><br>
+                            <label for="dishName">New Dish Name: </label>
+                            <input type="text" id="updateDishName" name="dishName" class="input">
 
-                    <label for="dishCategory" class="label">New Dish Category :</label>
-                <input type="text" name="dishCategory" id="updateDishCategory"
-                            class="input"><br>
-                    <label for="restaurant" class="label">New Restaurant :</label>
-                    <input type="text" name="restaurant" id="updateRestaurant"
-                                class="input"><br>
+                            <label for="dishPrice">New Dish Price: </label>
+                            <input type="number" id="updateDishPrice" name="dishPrice" class="input">
 
-                    <label for="dishDescription">New Dish Description: </label>
-                    <input type="text" id="updateDishDescription" name="dishDescription" class="input"><br>
+                            <label for="quantity">New Quantity: </label>
+                            <input type="number" id="updateQuantity" name="quantity" class="input">
 
-                    <button type="submit" class="updateDish">Update Dish</button>
-                </form>
+                            <label for="dishCategory" class="label">New Dish Category :</label>
+                            <input type="text" name="dishCategory" id="updateDishCategory" class="input">
+                            <label for="restaurant" class="label">New Restaurant :</label>
+                            <input type="text" name="restaurant" id="updateRestaurant" class="input">
+
+                            <label for="dishDescription">New Dish Description: </label>
+                            <input type="text" id="updateDishDescription" name="dishDescription" class="input">
+
+                            <button type="submit" class="updateDish" id="submitButton">Update Dish</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             <div class="deleSearch">
                 <div class="dishDetails">
@@ -82,28 +98,29 @@
                     <button onclick="searchDish()">Search</button>
                     <div id="searchResults"></div>
                 </div>
-
+                <h4>pending Orders</h4>
+                <button id="fetchOrdersBtn">Fetch Orders</button>
+                <h4>All Dishes</h4>
+                <button onclick="fetchAllDishes()">Fetch All Dishes</button>
             </div>
         </div>
         <div class="orderControl">
             <div class="allDishes">
-                <h4>All Dishes</h4>
-                <button onclick="fetchAllDishes()">Fetch All Dishes</button>
+               
                 <div id="dishContainer"></div>
             </div>
 
             <div class="dayOrders">
-                <h4>Order Management System</h4>
-                <button id="fetchOrdersBtn">Fetch Orders</button>
-                <div id="ordersList"></div>
+                <!-- <h4>Order Management System</h4>
+                <button id="fetchOrdersBtn">Fetch Orders</button> -->
+                <!-- <div id="ordersList"></div> -->
                 <p>Expected Sales: Kes.<span id="totalSalesExpected">0</span></p>
                 <p>Expected Commission: Kes.<span id="commissionExpected">0</span></p><br>
-                <h4>pending Orders</h4>
-                <button id="fetchOrdersBtn">Fetch Orders</button>
+                
                 <div id="ordersList"></div>
-                <p>Total Sales: Kes.<span id="totalSales">0</span></p>
+                <!-- <p>Total Sales: Kes.<span id="totalSales">0</span></p>
                 <p>Commission Due: Kes.<span id="commissionDue">0</span></p>
-                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
+                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p> -->
             </div>
         </div>
 

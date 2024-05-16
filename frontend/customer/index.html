@@ -1,173 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Online Hotel</title>
-    <link rel="stylesheet" href="style.css" />
-    <script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmuVWpm0lkdNiq3wWZpEz0XYtDjmoN-wY&callback=mapLoaded">
-</script>
 
-    
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <img src="../assets/Anyoka's.png" width="100" height="80">
-      </div> 
-      <nav>
-        <a href='./order.html'>Our Dishes/Cuisines</a>
-          <a href="index.html">Experience</a>
-          <a href="rooms.html">events</a>
-          <a href="about.html">groups&meetings</a> 
-         
-          <a href="./order2.html"> <img src="../assets/cart2.jpg" width="40" height="40"><form action="/submitOrder" method="post">
-            <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
-            <button type="button" id="confirmLocation" disabled>Confirm Location</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Hotel</title>
+  <link rel="stylesheet" href="style.css" />
+  <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmuVWpm0lkdNiq3wWZpEz0XYtDjmoN-wY&callback=mapLoaded">
+    </script>
 
-            <button type="submit">Submit Order</button>
-          </form>
-          
-            <br>Place Order</a>
-      </nav> 
-        </header> 
-         <div id="welcome">
-    
-      <h1><span class="welcome">EAT OUR YUMMY DISHES FROM WHEREVER YOU ARE</span></h1>
-      <div id="customerMap">
 
-        <div id="map-container" class="hidden"></div>
-        <select id="location-select">
-          <option value="">Select your location-Town</option>
-          <option value="malindi">Malindi</option>
-          <option value="watamu">Watamu</option>
-          <option value="kilifi">Kilifi</option>
-          <option value="mombasa">Mombasa</option>
-          <option value="lamu">Lamu</option>
-        </select>
-        <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
+</head>
 
-      </div>
-        <div id="ourProducts">
-         <button type="button" id="restaurant"><img src="http://"/><br>Ready Food</button>
-         <button type="button" id="restaurant"><img src="http://"/><br>Groceries</button>
-         <button type="button" id="restaurant"><img src="http://"/><br>supermarket</button>
-        </div>
-      </div>
-    
-         <div id="aboutUs">
-          <div id="time" class="about">
-            <img src="http://" />
-            <h3>Save Time</h3>
-            <p>Worry not about how you will get that food and yet you
-            have a lot to be done. Just by ordering from us, we deliver 
-            what you want as you take care of your business.</p>
-            
-           </div>
-          
-           <div id="money" class="about">
-            <img src="http://" />
-            <h3>Save Money</h3>
-            <p>Be it fare, or cost of being exploited, we ensure we get you the best only
-              at a reasonable price, and mark you don't have to go for it 
-              we deliver it to your door.</p>
-            </p>
-           </div>
-          
-           <div id="variety" class="about">
-            <img src="http://" />
-            <h3>Get Variety</h3>
-            <p>Your don't have to move from one restaurant to the other or vendor to vendor, 
-              we have all the variety you just choose from, just from the comfort of your home or Office
-              We handpick the best of each product or dish.
-            </p>
-           </div>
-          
-           <div id="distance" class="about">
-            <img src="http://" />
-            <h3>Accessibility</h3>
-            <p>Wherever you are, we can always get that favorite dish or foodstuff that you need at that time.
-              Just place an order from your sit and you receive your wish!
-            </p>
-           </div>
-           </div>
-           
-        <div id="products">
-          <div id="category-list">
-           <h3>Our Varieties</h3>
-        
-          <p>African Dishes</p>
-          <p>Swahili Dishes</p>
-          <p>Indian Dishes</p>
-          <p>Local Delicacies</p>
-          <p>Sea Foods</p>
-          <p>Italian Dishes</p>
-          <p>Special Order Dishes</p>
-           </div>
-           <hr>
+<body>
+  <header>
+    <div class="logo">
+      <img src="../assets/Anyoka's.png" width="100" height="80">
+    </div>
+    <nav>
+      <a href='./order.html'>Our Dishes/Cuisines</a>
+      <a href="index.html">Experience</a>
+      <a href="rooms.html">events</a>
+      <a href="about.html">groups&meetings</a>
 
-           <div id="chefs">
-            <h3>The Chef's Choice</h3>
-            
-               <h4>Chef's Snacks</h4>
-               <div id="snack"></div>
-               <h4>Chef's Main Dishes</h4>
-               <div id="main_dish"></div>
-               <h4>Chef's Deserts</h4>
-               <div id="desert"></div>
-               <h4>Chef's Juices</h4>
-               <div id="juice"></div>
-           </div>
-           <hr>
-           <div id="foodStuff">
-             <h3>lets go shopping</h3>
-            <div id="sokoni"></div>
-           </div>
-          </div>
-    <div class="partners">  
-      <div id="ourPartners">
-        <h4>Malindi hotels and Restaurants</h4>
-        <h4>Malindi supermarkets and grocers stores</h4>
-        <h4>Watamu hotels and Restaurants</h4>
-        <h4>Watamu supermarkets and grocers stores</h4>
-        <h4>Mombasa hotels and Restaurants</h4>
-        <h4>Mombasa supermarkets and grocers stores</h4>
-        <h4>Lamu hotels and Restaurants</h4>
-        <h4>Lamu supermarkets and grocers stores</h4>
-      </div>  
+      <a href="./order2.html"> <img src="../assets/cart2.jpg" width="40" height="40">
+        <form action="/submitOrder" method="post">
+          <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
+          <button type="button" id="confirmLocation" disabled>Confirm Location</button>
+
+          <button type="submit">Submit Order</button>
+        </form>
+
+        <br>Place Order
+      </a>
+    </nav>
+  </header>
+  <div id="welcome">
+
+    <h1><span class="welcome">EAT OUR YUMMY DISHES FROM WHEREVER YOU ARE</span></h1>
+    <div id="customerMap">
+
+      <div id="map-container" class="hidden"></div>
+      <select id="location-select">
+        <option value="">Select your location-Town</option>
+        <option value="malindi">Malindi</option>
+        <option value="watamu">Watamu</option>
+        <option value="kilifi">Kilifi</option>
+        <option value="mombasa">Mombasa</option>
+        <option value="lamu">Lamu</option>
+      </select>
+      <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
+
+    </div>
+    <div id="ourProducts">
+      <button type="button" id="restaurant"><img src="http://" /><br>Ready Food</button>
+      <button type="button" id="restaurant"><img src="http://" /><br>Groceries</button>
+      <button type="button" id="restaurant"><img src="http://" /><br>supermarket</button>
+    </div>
+  </div>
+
+  <div id="aboutUs">
+    <div id="time" class="about">
+      <img src="http://" />
+      <h3>Save Time</h3>
+      <p>Worry not about how you will get that food and yet you
+        have a lot to be done. Just by ordering from us, we deliver
+        what you want as you take care of your business.</p>
+
+    </div>
+
+    <div id="money" class="about">
+      <img src="http://" />
+      <h3>Save Money</h3>
+      <p>Be it fare, or cost of being exploited, we ensure we get you the best only
+        at a reasonable price, and mark you don't have to go for it
+        we deliver it to your door.</p>
+      </p>
+    </div>
+
+    <div id="variety" class="about">
+      <img src="http://" />
+      <h3>Get Variety</h3>
+      <p>Your don't have to move from one restaurant to the other or vendor to vendor,
+        we have all the variety you just choose from, just from the comfort of your home or Office
+        We handpick the best of each product or dish.
+      </p>
+    </div>
+
+    <div id="distance" class="about">
+      <img src="http://" />
+      <h3>Accessibility</h3>
+      <p>Wherever you are, we can always get that favorite dish or foodstuff that you need at that time.
+        Just place an order from your sit and you receive your wish!
+      </p>
+    </div>
+  </div>
+
+  <div id="products">
+    <div id="category-list">
+      <h3>Our Varieties</h3>
+
+      <p>African Dishes</p>
+      <p>Swahili Dishes</p>
+      <p>Indian Dishes</p>
+      <p>Local Delicacies</p>
+      <p>Sea Foods</p>
+      <p>Italian Dishes</p>
+      <p>Special Order Dishes</p>
+    </div>
+    <hr>
+
+    <div id="chefs">
+      <h3>The Chef's Choice</h3>
+
+      <h4>Chef's Snacks</h4>
+      <div id="snack"></div>
+      <h4>Chef's Main Dishes</h4>
+      <div id="main_dish"></div>
+      <h4>Chef's Deserts</h4>
+      <div id="desert"></div>
+      <h4>Chef's Juices</h4>
+      <div id="juice"></div>
+    </div>
+    <hr>
+    <div id="foodStuff">
+      <h3>lets go shopping</h3>
+      <div id="sokoni"></div>
+    </div>
+  </div>
+  <div class="partners">
+    <div id="ourPartners">
+      <h4>Malindi hotels and Restaurants</h4>
+      <h4>Malindi supermarkets and grocers stores</h4>
+      <h4>Watamu hotels and Restaurants</h4>
+      <h4>Watamu supermarkets and grocers stores</h4>
+      <h4>Mombasa hotels and Restaurants</h4>
+      <h4>Mombasa supermarkets and grocers stores</h4>
+      <h4>Lamu hotels and Restaurants</h4>
+      <h4>Lamu supermarkets and grocers stores</h4>
+    </div>
     <div>
-    <iframe src="../assets/meal.mp4" frameborder="0" width="600" height="350"></iframe> 
+      <iframe src="../assets/meal.mp4" frameborder="0" width="600" height="350"></iframe>
     </div>
-   </div>
-    <div id="button">
- 
-   <a href="./order.html"><button type="button" class="dishCheck"><img src="../assets/search food.jpg" width="50"  height="50"> <br>Dishes</button></a>
-  
-  <a href="./order2.html" ><button type="button" class ="orderDish"><img src="../assets/order icon.png" width="50"  height="50"> <br>Order</button></a>
-  
-    <button type="button" class ="deliverDish"><img src="../assets/delivery.jpg" width="50"  height="50"><br>Transit</button>
- 
-  <button type="button" class ="track"><img src="../assets/tracking icon.png" width="50"  height="50"> <br>Track it</button>
-</div>
-</div>
-    <div class="social-icons">
-    <a href="#"><img  src="../assets/icons8-facebook.gif" width="50" height="50"> </a>
-    <a href="#"><img src="../assets/icons8-twitter.gif"></a>
-     <a href="#"> <img src="../assets/icons8-instagram.gif"></a>
-     <a  href="#"> <img src="../assets/icons8-youtube.gif"></a>
-      <a href="#"><img src="../assets/icons8-whatsapp.gif"></a>
-    </div>
+  </div>
+  <div id="button">
 
-    <footer class="footer">
-      <div id="myNavbar">
-          <a href="#aboutUs">Home</a>
-          <a href="#">About</a>
-          <a href="contact.html">Membership</a>
-          <a href="../userfile/user.html">Sign In</a>
-          <a href="#">Sign Up</a>
-        
-            <!-- <div id="authModal" class="modal">
+    <a href="./order.html"><button type="button" class="dishCheck"><img src="../assets/search food.jpg" width="50"
+          height="50"> <br>Dishes</button></a>
+
+    <a href="./order2.html"><button type="button" class="orderDish"><img src="../assets/order icon.png" width="50"
+          height="50"> <br>Order</button></a>
+
+    <button type="button" class="deliverDish"><img src="../assets/delivery.jpg" width="50"
+        height="50"><br>Transit</button>
+
+    <button type="button" class="track"><img src="../assets/tracking icon.png" width="50" height="50"> <br>Track
+      it</button>
+  </div>
+  </div>
+  <div class="social-icons">
+    <a href="#"><img src="../assets/icons8-facebook.gif" width="50" height="50"> </a>
+    <a href="#"><img src="../assets/icons8-twitter.gif"></a>
+    <a href="#"> <img src="../assets/icons8-instagram.gif"></a>
+    <a href="#"> <img src="../assets/icons8-youtube.gif"></a>
+    <a href="#"><img src="../assets/icons8-whatsapp.gif"></a>
+  </div>
+
+  <footer class="footer">
+    <div id="myNavbar">
+      <a href="#aboutUs">Home</a>
+      <a href="#">About</a>
+      <a href="contact.html">Membership</a>
+      <a href="../userfile/user.html">Sign In</a>
+      <a href="#">Sign Up</a>
+
+      <!-- <div id="authModal" class="modal">
                 <div class="modal-content">
                     <span class="close">&times;</span>
                     <h2 id="modalTitle">Sign In</h2>
@@ -175,13 +183,14 @@
                     <input type="password" id="password" placeholder="Password">
                     <button id="actionBtn">Sign In</button>
                 </div> -->
-            <!-- </div> -->
-       </div>          
-      <div class="foot">
-        <p class="copy">&copy; Copyright 2024</p>
-      </div>
-    </footer>
-    
-    <script src="customer.js"></script>
-  </body>
+      <!-- </div> -->
+    </div>
+    <div class="foot">
+      <p class="copy">&copy; Copyright 2024</p>
+    </div>
+  </footer>
+
+  <script src="customer.js"></script>
+</body>
+
 </html>
