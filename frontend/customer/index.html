@@ -6,9 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Online Hotel</title>
   <link rel="stylesheet" href="style.css" />
-  <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmuVWpm0lkdNiq3wWZpEz0XYtDjmoN-wY&callback=mapLoaded">
-    </script>
+  <script src="https://kit.fontawesome.com/c9a32bc11a.js" crossorigin="anonymous"></script>
+</head>
+
 
 
 </head>
@@ -16,148 +16,175 @@
 <body>
   <header>
     <div class="logo">
-      <img src="../assets/Anyoka's.png" width="100" height="80">
+      <img src="../assets/online Chefs (1).png" width="80" height="50">
     </div>
     <nav>
-      <a href='./order.html'>Our Dishes/Cuisines</a>
       <a href="index.html">Experience</a>
-      <a href="rooms.html">events</a>
-      <a href="about.html">groups&meetings</a>
-
-      <a href="./order2.html"> <img src="../assets/cart2.jpg" width="40" height="40">
-        <form action="/submitOrder" method="post">
-          <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
-          <button type="button" id="confirmLocation" disabled>Confirm Location</button>
-
-          <button type="submit">Submit Order</button>
-        </form>
-
-        <br>Place Order
-      </a>
+      <a href="rooms.html">Events</a>
+      <a href="about.html">Groups&Meetings</a>
+      <a href="./order.html" id="orderIcon"><img src="../assets/cart2.jpg" width="20" height="20">
+        Cart</a>
     </nav>
   </header>
-  <div id="welcome">
+  <div id="firstPage">
+    <div id="controlsPages">
+      <div class="divider">
+        <p id="openModalBtn" class="menuHandler">About Us</p>
+        <div id="modalContainer" class="hidden">
+          <div class="modal">
+            <div class="modal-content">
+              <button type="button" id="closeModalBtn"></button>
+              <div class="modal-body">
+                <div id="time" class="about">
+                  <img src="../assets/save time icon.gif" width="80" height="50" alt="Save Time">
+                  <h3>Save Time</h3>
+                  <p>Worry not about how you will get that food and yet you have a lot to be done. Just by ordering from
+                    us, we deliver what you want as you take care of your business.</p>
+                </div>
 
-    <h1><span class="welcome">EAT OUR YUMMY DISHES FROM WHEREVER YOU ARE</span></h1>
-    <div id="customerMap">
+                <div id="money" class="about">
+                  <img src="../assets/save money.jpg" width="80" height="50" alt="Save Money">
+                  <h3>Save Money</h3>
+                  <p>Be it fare, or cost of being exploited, we ensure we get you the best only at a reasonable price,
+                    and
+                    mark you don't have to go for it we deliver it to your door.</p>
+                </div>
 
-      <div id="map-container" class="hidden"></div>
-      <select id="location-select">
-        <option value="">Select your location-Town</option>
-        <option value="malindi">Malindi</option>
-        <option value="watamu">Watamu</option>
-        <option value="kilifi">Kilifi</option>
-        <option value="mombasa">Mombasa</option>
-        <option value="lamu">Lamu</option>
-      </select>
-      <input type="hidden" id="selectedLocation" name="selectedLocation" value="">
+                <div id="variety" class="about">
+                  <img src="../assets/variaty icon.jpg" width="80" height="50" alt="Get Variety">
+                  <h3>Get Variety</h3>
+                  <p>You don't have to move from one restaurant to the other or vendor to vendor, we have all the
+                    variety
+                    you just choose from, just from the comfort of your home or Office. We handpick the best of each
+                    product or dish.</p>
+                </div>
+
+                <div id="distance" class="about">
+                  <img src="../assets/accessibility icon.jpg" width="80" height="50" alt="Accessibility">
+                  <h3>Accessibility</h3>
+                  <p>Wherever you are, we can always get that favorite dish or foodstuff that you need at that time.
+                    Just
+                    place an order from your seat and you receive your wish!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider">
+        <div class="subnav">
+          <p class="menuHandler">Our Varieties</p>
+
+          <div id="category-list" class="subnav-content">
+            <h3>Click to Explore!</h3>
+            <p class="dishCategory" onclick="filterDishes('African Dishes')">African Dishes</p><br>
+            <p class="dishCategory" onclick="filterDishes('Swahili Dishes')">Swahili Dishes</p><br>
+            <p class="dishCategory" onclick="filterDishes('Indian Dishes')">Indian Dishes</p><br>
+            <p class="dishCategory" onclick="filterDishes('Sea Foods')">Sea Foods</p><br>
+            <p class="dishCategory" onclick="filterDishes('Chinese Foods')">Chinese Foods</p><br>
+            <p class="dishCategory" onclick="filterDishes('Italian Dishes')">Italian Dishes</p><br>
+            <p class="dishCategory" onclick="filterDishes('All')">All Dishes</p>
+          </div>
+          <div id="dishModal" class="modalDish">
+            <div class="modal-dish-content">
+              <span class="closeDish" onclick="closeModal()">&times;</span>
+              <div id="dish-list" class="dish-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="divider">
+        <p class="menuHandler"><a href="menu.html">Our Menu</a></p>
+      </div>
+      <div class="divider">
+        <div class="subnav-chefs">
+          <p class="menuHandler">The Chef's Choice</p>
+          <div id="chefs" class="subnav-content-chefs">
+
+            <p>Chef's Snacks</p>
+            <div id="snack"></div>
+            <p>Chef's Main Dishes</p>
+            <div id="main_dish"></div>
+            <p>Chef's Deserts</p>
+            <div id="desert"></div>
+            <p>Chef's Juices & drinks</p>
+            <div id="juice"></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider">
+        <p class="menuHandler">Special Orders</p>
+      </div>
+      <div class="divider">
+        <p class="menuHandler">Outside Catering</p>
+      </div>
+      <div class="divider">
+        <p class="menuHandler">Offers and Coupons</p>
+      </div>
+      <div class="divider">
+        <p class="menuHandler">Order Status-Track it</p>
+      </div>
+      <div class="divider">
+        <p class="menuHandler">Our Customers' Say</p>
+      </div>
 
     </div>
-    <div id="ourProducts">
-      <button type="button" id="restaurant"><img src="http://" /><br>Ready Food</button>
-      <button type="button" id="restaurant"><img src="http://" /><br>Groceries</button>
-      <button type="button" id="restaurant"><img src="http://" /><br>supermarket</button>
+
+    <div id="welcome">
+
+      <div class="searchBar">
+        <div class="search-bar">
+          <span class="search-tool-icon"><i class="fas fa-search"></i></span><input type="search" id="searchQuery"
+            placeholder="Search dishes, restaurants, categories">
+          <span id="start" class="mic-icon show">
+            <i class="fas fa-microphone clickable-mic"></i> </span>
+          <input type="button" id="stop" class="hide" value="Stop" />
+        </div>
+        <div id="searchResults"></div>
+        <div id="details"></div>
+      </div>
+      <div class="welcome">
+        <h1><span class="welcome">Get Your food</span></h1>
+        <h1><span class="welcome">Wherever You Are!</span></h1>
+      </div>
+    
+      <!-- <div id="ourProducts">
+        <button type="button" id="restaurant"><img src="http://" /><br>Ready Food</button>
+        <button type="button" id="restaurant"><img src="http://" /><br>Groceries</button>
+        <button type="button" id="restaurant"><img src="http://" /><br>supermarket</button>
+      </div> -->
     </div>
   </div>
 
-  <div id="aboutUs">
-    <div id="time" class="about">
-      <img src="http://" />
-      <h3>Save Time</h3>
-      <p>Worry not about how you will get that food and yet you
-        have a lot to be done. Just by ordering from us, we deliver
-        what you want as you take care of your business.</p>
-
-    </div>
-
-    <div id="money" class="about">
-      <img src="http://" />
-      <h3>Save Money</h3>
-      <p>Be it fare, or cost of being exploited, we ensure we get you the best only
-        at a reasonable price, and mark you don't have to go for it
-        we deliver it to your door.</p>
-      </p>
-    </div>
-
-    <div id="variety" class="about">
-      <img src="http://" />
-      <h3>Get Variety</h3>
-      <p>Your don't have to move from one restaurant to the other or vendor to vendor,
-        we have all the variety you just choose from, just from the comfort of your home or Office
-        We handpick the best of each product or dish.
-      </p>
-    </div>
-
-    <div id="distance" class="about">
-      <img src="http://" />
-      <h3>Accessibility</h3>
-      <p>Wherever you are, we can always get that favorite dish or foodstuff that you need at that time.
-        Just place an order from your sit and you receive your wish!
-      </p>
-    </div>
   </div>
 
-  <div id="products">
-    <div id="category-list">
-      <h3>Our Varieties</h3>
-
-      <p>African Dishes</p>
-      <p>Swahili Dishes</p>
-      <p>Indian Dishes</p>
-      <p>Local Delicacies</p>
-      <p>Sea Foods</p>
-      <p>Italian Dishes</p>
-      <p>Special Order Dishes</p>
-    </div>
-    <hr>
-
-    <div id="chefs">
-      <h3>The Chef's Choice</h3>
-
-      <h4>Chef's Snacks</h4>
-      <div id="snack"></div>
-      <h4>Chef's Main Dishes</h4>
-      <div id="main_dish"></div>
-      <h4>Chef's Deserts</h4>
-      <div id="desert"></div>
-      <h4>Chef's Juices</h4>
-      <div id="juice"></div>
-    </div>
-    <hr>
-    <div id="foodStuff">
-      <h3>lets go shopping</h3>
-      <div id="sokoni"></div>
-    </div>
-  </div>
   <div class="partners">
-    <div id="ourPartners">
-      <h4>Malindi hotels and Restaurants</h4>
-      <h4>Malindi supermarkets and grocers stores</h4>
-      <h4>Watamu hotels and Restaurants</h4>
-      <h4>Watamu supermarkets and grocers stores</h4>
-      <h4>Mombasa hotels and Restaurants</h4>
-      <h4>Mombasa supermarkets and grocers stores</h4>
-      <h4>Lamu hotels and Restaurants</h4>
-      <h4>Lamu supermarkets and grocers stores</h4>
-    </div>
     <div>
       <iframe src="../assets/meal.mp4" frameborder="0" width="600" height="350"></iframe>
     </div>
+
+    <div class="ratings">
+      <h4>What our customers are saying!</h4>
+    </div>
+    <div id="ourPartners">
+      <h4>Our restaurants </h4>
+
+    </div>
+
   </div>
-  <div id="button">
+  <!-- <div id="button">
 
-    <a href="./order.html"><button type="button" class="dishCheck"><img src="../assets/search food.jpg" width="50"
-          height="50"> <br>Dishes</button></a>
+    
 
-    <a href="./order2.html"><button type="button" class="orderDish"><img src="../assets/order icon.png" width="50"
-          height="50"> <br>Order</button></a>
+    <button type="button" class="orderDish" id="orderIcon"><img src="../assets/order icon.png" width="25"
+          height="25"> Order</button></a>
 
-    <button type="button" class="deliverDish"><img src="../assets/delivery.jpg" width="50"
-        height="50"><br>Transit</button>
+    <button type="button" class="deliverDish" id="orderIcon"><img src="../assets/delivery.jpg" width="25"
+        height="25">Transit</button>
 
-    <button type="button" class="track"><img src="../assets/tracking icon.png" width="50" height="50"> <br>Track
+    <button type="button" class="track" id="orderIcon"><img src="../assets/tracking icon.png" width="25" height="25">Track
       it</button>
-  </div>
+  </div>  -->
   </div>
   <div class="social-icons">
     <a href="#"><img src="../assets/icons8-facebook.gif" width="50" height="50"> </a>
@@ -170,20 +197,9 @@
   <footer class="footer">
     <div id="myNavbar">
       <a href="#aboutUs">Home</a>
-      <a href="#">About</a>
       <a href="contact.html">Membership</a>
       <a href="../userfile/user.html">Sign In</a>
-      <a href="#">Sign Up</a>
-
-      <!-- <div id="authModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2 id="modalTitle">Sign In</h2>
-                    <input type="text" id="username" placeholder="Username">
-                    <input type="password" id="password" placeholder="Password">
-                    <button id="actionBtn">Sign In</button>
-                </div> -->
-      <!-- </div> -->
+      <a href="../customer/login.html">Sign Up</a>
     </div>
     <div class="foot">
       <p class="copy">&copy; Copyright 2024</p>

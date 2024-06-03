@@ -1,173 +1,426 @@
-function mapLoaded() {
-  // Google Maps API is loaded here
-  initMap(); // Now you can call initMap safely
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const openModalBtn = document.getElementById('openModalBtn');
+  // const openModalVariety = document.getElementById('openModalVariety');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const modalContainer = document.getElementById('modalContainer');
+  // const modalContainerVariety = document.getElementById('modalContainerVariety');
+  // Event listeners for opening the modal
+  openModalBtn.addEventListener('click', () => {
+    modalContainer.classList.remove('hidden');
+  });
 
-function initMap() {  
-    // Create a default map centered on Kenya (adjust as needed)
-    const map = new google.maps.Map(document.getElementById("map-container"), {
-      zoom: 14,
-      center: {lat: -1.29497, lng: 36.82334 }, // Coordinates for Nairobi
-    }); 
-    const TOWN_LATITUDE = -1.29497;
-  const TOWN_LONGITUDE = 36.82334;
-  const townCenter = { lat: TOWN_LATITUDE, lng: TOWN_LONGITUDE }; // Replace with your town's coordinates
-  const zoomLevel = 14; // Adjust zoom level for town view (higher = closer)
+  // openModalVariety.addEventListener('click', () => {
+  //   modalContainerVariety.classList.remove('hidden');
+  // });
 
-    // Add event listener for location selection change
-    const locationSelect = document.getElementById("location-select");
-    locationSelect.addEventListener("change", (event) => {
-      const selectedLocation = event.target.value;
-      updateMap(selectedLocation, map);
-      document.getElementById("map-container").classList.remove("hidden"); // Unhide map container
-    });
-  
-    // Function to update map based on selected location (replace with actual coordinates)
-    function updateMap(selectedLocation, map) { 
-      let center;
-      switch (selectedLocation) {
-        case "malindi":
-          center = { lat: -3.2222, lng: 40.1167 }; // Adjust coordinates for Malindi
-          break;
-        case "watamu":
-          center = { lat: -3.3778, lng: 40.0333 }; // Adjust coordinates for Watamu
-          break;
+  openModalBtn.addEventListener('click', (event) => {
+    event.preventDefault(); // Prevents the default action of the link
+    modalContainer.classList.remove('hidden'); // Shows the modal
+  });
 
-        case "kilifi":
-            center = { lat: -3.6333, lng: 39.8433 }; // Adjust coordinates for Kilifi
-            break;
+  // openModalVariety.addEventListener('click', (event) => {
+  //   event.preventDefault(); // Prevents the default action of the link
+  //   modalContainerVariety.classList.remove('hidden'); // Shows the modal
+  // });
 
-        case "mombasa":
-            center = { lat: -4.05, lng: 39.6667 }; // Adjust coordinates for Mombasa
-            break;
+  // Event listener for closing the modal
+  closeModalBtn.addEventListener('click', () => {
+    modalContainer.classList.add('hidden');
+  });
+  // closeModalBtn.addEventListener('click', () => {
+  //   modalContainerVariety.classList.add('hidden');
+  // });
 
-        case "lamu":
-            center = { lat: -2.26864, lng: 40.90086 }; // Adjust coordinates for Lamu
-            break;
-        // Add cases for other locations with their respective coordinates
-        default:
-          return; // Handle cases where no location is selected
-      }
-  
-      map.setCenter(center); // Update map center
+  // Improved window click event listener
+  window.addEventListener('click', (event) => {
+    // Check if the clicked element is the modal container or a child of the modal container
+    if (event.target === modalContainer || modalContainer.contains(event.target)) {
+      modalContainer.classList.add('hidden');
     }
+  });
 
-  }
+  // window.addEventListener('click', (event) => {
+  //   // Check if the clicked element is the modal container or a child of the modal container
+  //   if (event.target === modalContainerVariety || modalContainerVariety.contains(event.target)) {
+  //     modalContainerVariety.classList.add('hidden');
+  //   }
+  // });
+
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('searchQuery');
+  const searchResults = document.getElementById('searchResults');
+  const detailContainer = document.getElementById('details');
+
+  searchInput.addEventListener('input', function () {
+    const searchTerm = searchInput.value.trim();
+    if (!searchTerm) return;
 
 
-  function getUserLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-        placeMarker(userLocation); // Add a marker at the user's location
-      }, 
-        (error) => {
-          console.error("Error getting user location:", error.message);
-          // Handle geolocation errors gracefully (e.g., display informational message)
+    fetch(`http://localhost:3000/api/searchAny?q=${encodeURIComponent(searchTerm)}&type=suggestion`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
         }
-      );
+        return response.json();
+      })
+      .then(data => {
+        if (data && Array.isArray(data)) {
+          detailContainer.innerHTML = '';
+          // const suggestionsHtml = data.map(item => `<div class="suggestion-item" data-id="${item.dishCode}">${item.dishName} - ${item.dishCategory} - ${item.restaurant}</div>`).join('');
+          const suggestionsHtml = data.map(item => `<div class="suggestion-item" data-dish-code="${item.dishCode}">${item.dishName} - ${item.dishCategory} - ${item.restaurant}</div>`).join('');
+
+          searchResults.innerHTML = suggestionsHtml;
+        } else {
+          console.error('Unexpected data structure:', data - id);
+          searchResults.innerHTML = '<p>No suggestions available.</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching suggestions:', error);
+        searchResults.innerHTML = '<p>Error fetching suggestions. Please try again later.</p>';
+      });
+  });
+
+  searchResults.addEventListener('click', function (e) {
+    if (e.target.classList.contains('suggestion-item')) {
+      const selectedItem = e.target.dataset.dishCode;
+      console.log("Selected Item:", selectedItem); // Debugging line
+      fetchDetails(selectedItem);
     } else {
-      console.warn("Geolocation is not supported by this browser.");
+      console.error("No dishCode found");
     }
-  }
-  
-  google.maps.event.addListener(map, 'click', function(event) {
-    placeMarker(event.latLng); // Place a marker on the clicked location
   });
-  function placeMarker(location) {
-    const marker = new google.maps.Marker({
-      position: location,
-      map: map, // Reference the map object
-    });
-  
-    // (Optional) Add event listener for marker drag (to capture user-adjusted location)
-    marker.addListener('dragend', function(e) {
-    //   const newLocation = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-      const selectedLocationInput = document.getElementById("selectedLocation");
-  selectedLocationInput.value = JSON.stringify(location); // Convert location to JSON string
-  const confirmLocationButton = document.getElementById("confirmLocation");
-  confirmLocationButton.disabled = false; // Enable confirmation button
+  document.addEventListener('click', () => {
+    searchResults.innerHTML = '';
+  })
 
-})
-      // Update hidden input field with new location coordinates (explained later)
-   // });
-   // Optional: Add animation to highlight marker placement
-  marker.setAnimation(google.maps.Animation.BOUNCE);
-  setTimeout(function() {
-    marker.setAnimation(null);
-  }, 700); // Stop bounce animation after 0.7 seconds
+
+  function fetchDetails(dishCode) {
+    const url = `http://localhost:3000/api/dishes/details/${encodeURIComponent(dishCode)}`;
+
+    fetch(url)
+      .then(response => {
+        // console.log(response)
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      // console.log(data)
+      .then(data => {
+        console.log(data);
+        if (data && Object.keys(data).length > 0) {
+          searchResults.innerHTML = '';
+          const detailHtml = `
+          <div class="detail-container">
+            <img src="path/to/image.jpg" alt="${data.dishName}">
+            <h2>${data.dishName}</h2>
+            <p>${data.dishDescription}</p>
+            <p>Category: ${data.dishCategory}</p>
+            <p>Restaurant: ${data.restaurant}</p>
+            <p>Price: ${data.dishPrice*1.2}</p>
+          </div>`;
+          detailContainer.innerHTML = detailHtml;
+        } else {
+          console.error('No details found for this dish.');
+          detailContainer.innerHTML = '<p>No details available for this dish.</p>';
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching details:', error);
+        detailContainer.innerHTML = '<p>Error fetching details. Please try again later.</p>';
+      });
+
   }
-  
-
-  const confirmLocationButton = document.getElementById("confirmLocation");
-  confirmLocationButton.addEventListener("click", function() {
-    // Submit order form (using existing logic)
+  document.addEventListener('click', () => {
+    detailContainer.innerHTML = '';
   });
-// // frontend.js
-// document.addEventListener('DOMContentLoaded', function() {
-//   const modal = document.getElementById('authModal');
-//   const signInBtn = document.getElementById('signinBtn');
-//   const signUpBtn = document.getElementById('signupBtn');
-//   const modalTitle = document.getElementById('modalTitle');
-//   const actionBtn = document.getElementById('actionBtn');
-//   const usernameInput = document.getElementById('username');
-//   const passwordInput = document.getElementById('password');
 
-//   signInBtn.addEventListener('click', function() {
-//       openModal('Sign In');
+});
+// document.addEventListener('DOMContentLoaded', function () {
+//   const searchInput = document.getElementById('searchQuery');
+//   const searchResults = document.getElementById('searchResults');
+//   const detailContainer = document.getElementById('details');
+
+//   searchInput.addEventListener('input', function () {
+//       const searchTerm = searchInput.value.trim();
+//       if (!searchTerm) return;
+
+//       let searchType = 'dish'; // Default to dish search
+//       if (/category/.test(searchTerm)) {
+//           searchType = 'category';
+//       } else if (/restaurant/.test(searchTerm)) {
+//           searchType = 'restaurant';
+//       }
+
+//       switch (searchType) {
+//           case 'dish':
+//               fetchDishes(searchTerm);
+//               break;
+//           case 'category':
+//               fetchCategories(searchTerm);
+//               break;
+//           case 'restaurant':
+//               fetchRestaurants(searchTerm);
+//               break;
+//           default:
+//               console.error('Unsupported search type:', searchType);
+//       }
 //   });
 
-//   signUpBtn.addEventListener('click', function() {
-//       openModal('Sign Up');
-//   });
+//   async function fetchDishes(searchTerm) {
+//     const response = await fetch(`http://localhost:3000/api/dishes?s=${encodeURIComponent(searchTerm)}`);
+//     const dishes = await response.json();
+//     if (dishes.length === 0) {
+//         searchResults.innerHTML = '<p>No dishes found.</p>';
+//     } else {
+//         const dishesHtml = dishes.map(dish => `
+//             <div class="suggestion-item" data-dish-code="${dish.dishCode}">
+//                 ${dish.dishName} - ${dish.dishCategory} - ${dish.restaurant}
+//             </div>`).join('');
+//         searchResults.innerHTML = dishesHtml;
+//     }
+// }
 
-//   function openModal(title) {
-//       modalTitle.textContent = title;
-//       modal.style.display = 'block';
-//       actionBtn.textContent = title;
 
-//       // Clear input fields
-//       usernameInput.value = '';
-//       passwordInput.value = '';
+// async function fetchCategories(searchTerm) {
+//   const response = await fetch(`http://localhost:3000/api/categories/suggestions?categoryName=${encodeURIComponent(searchTerm)}`);
+//   const categories = await response.json();
+//   if (categories.length === 0) {
+//       searchResults.innerHTML = '<p>No categories found.</p>';
+//   } else {
+//       const categoriesHtml = categories.map(category => `
+//           <div class="suggestion-item" data-category-name="${category.dishCategory}">
+//               ${category.dishCategory}
+//           </div>`).join('');
+//       searchResults.innerHTML = categoriesHtml;
 //   }
+// }
 
-//   document.getElementsByClassName('close')[0].onclick = function() {
-//       modal.style.display = "none";
+
+// async function fetchRestaurants(searchTerm) {
+//   const response = await fetch(`http://localhost:3000/api/restaurants/suggestions?restaurantName=${encodeURIComponent(searchTerm)}`);
+//   const restaurants = await response.json();
+//   if (restaurants.length === 0) {
+//       searchResults.innerHTML = '<p>No restaurants found.</p>';
+//   } else {
+//       const restaurantsHtml = restaurants.map(restaurant => `
+//           <div class="suggestion-item" data-restaurant-name="${restaurant.restaurant}">
+//               ${restaurant.restaurant}
+//           </div>`).join('');
+//       searchResults.innerHTML = restaurantsHtml;
 //   }
+// }
 
-//   window.onclick = function(event) {
-//       if (event.target == modal) {
-//           modal.style.display = "none";
+
+
+//   // Function to fetch and display dish details
+//   async function fetchDetails(dishCode) {
+//       const url = `http://localhost:3000/api/dishes/details/${encodeURIComponent(dishCode)}`;
+//       const response = await fetch(url);
+//       const data = await response.json();
+//       if (data && Object.keys(data).length > 0) {
+//           detailContainer.innerHTML = `
+//           <div class="detail-container">
+//               <img src="path/to/image.jpg" alt="${data.dishName}">
+//               <h2>${data.dishName}</h2>
+//               <p>${data.dishDescription}</p>
+//               <p>Category: ${data.dishCategory}</p>
+//               <p>Restaurant: ${data.restaurant}</p>
+//               <p>Price: ${data.dishPrice}</p>
+//           </div>`;
+//       } else {
+//           detailContainer.innerHTML = '<p>No details found for this dish.</p>';
 //       }
 //   }
-
-//   actionBtn.addEventListener('click', function() {
-//       const username = usernameInput.value;
-//       const password = passwordInput.value;
-//       const url = actionBtn.textContent === 'Sign In' ? '/signin' : '/signup';
-      
-//       // Send request to backend for authentication
-//       fetch('http://localhost:3000/api/signin', {
-//           method: 'POST', 
-
-//           headers: {
-//               'Content-Type': 'application/json'
-//           },
-//           body: JSON.stringify({ username, password })
-//       })
-//       .then(response => {
-//           if (!response.ok) { 
-//               throw new Error(`HTTP error! status: ${response.status}`);
-//           }
-//           return response.json();
-//       })
-//       .then(data => {
-//           alert(data.message); // Display success message
-//           modal.style.display = "none"; // Close modal
-//       })
-//       .catch(error => {
-//           console.error('Error:', error);
-//           alert('Failed to authenticate'); // Display error message 
-//       });
-//   });
 // });
+// const searchBar = document.getElementById('search-bar');
+// const voiceSearchButton = document.getElementById('voice-search');
+// const searchButton = document.getElementById('search-button');
+
+// // Replace with your actual function to handle search query (backend integration)
+// function handleSearch(query) {
+//   console.log(`Search query: ${query}`);
+//   // Perform search using your backend logic here
+// }
+
+// // Voice search functionality using Web Speech API
+// if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+//   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+//   voiceSearchButton.addEventListener('click', () => {
+//     recognition.start();
+//     recognition.onresult = (event) => {
+//       const searchQuery = event.results[0][0].transcript;
+//       searchBar.value = searchQuery;
+//     };
+//   });
+// } else {
+//   voiceSearchButton.disabled = true;
+//   console.error('Speech Recognition is not supported by your browser');
+// }
+
+// // Handle search on button click or enter key press
+// searchButton.addEventListener('click', () => {
+//   const searchQuery = searchBar.value.trim();
+//   if (searchQuery) {
+//     handleSearch(searchQuery);
+//   }
+// });
+
+// searchBar.addEventListener('keypress', (event) => {
+//   if (event.key === 'Enter') {
+//     const searchQuery = searchBar.value.trim();
+//     if (searchQuery) {
+//       handleSearch(searchQuery);
+//     }
+//   }
+// });
+
+const recognition = new window.webkitSpeechRecognition();
+const startButton = document.querySelector("#start");
+const stopButton = document.querySelector("#stop");
+
+startButton.addEventListener("click", (event) => {
+  if (startButton.classList.contains("show")) {
+    startButton.classList.add("hide");
+    startButton.classList.remove("show");
+    stopButton.classList.remove("hide");
+    stopButton.classList.add("show");
+    startRecording();
+  }
+});
+
+stopButton.addEventListener("click", (event) => {
+  if (stopButton.classList.contains("show")) {
+    stopButton.classList.remove("show");
+    stopButton.classList.add("hide");
+    startButton.classList.add("show");
+    startButton.classList.remove("hide");
+    stopRecording();
+  }
+});
+
+function startRecording() {
+  recognition.start();
+}
+
+function stopRecording() {
+  recognition.stop();
+}
+
+recognition.onresult = function (event) {
+  let saidText = "";
+  for (let i = event.resultIndex; i < event.results.length; i++) {
+    if (event.results[i].isFinal) {
+      saidText = event.results[i][0].transcript;
+    } else {
+      saidText += event.results[i][0].transcript;
+    }
+  }
+  document.getElementById("searchQuery").value = saidText;
+  // Trigger the search functionality
+  const searchInput = document.getElementById('searchQuery');
+  searchInput.dispatchEvent(new Event('input'));
+};
+
+recognition.onend = function (event) {
+  stopButton.classList.remove("show");
+  stopButton.classList.add("hide");
+  startButton.classList.add("show");
+  startButton.classList.remove("hide");
+};
+saidText = '';
+
+
+// fetchDishes();
+const modal = document.getElementById("dishModal");
+const dishList = document.getElementById('dish-list');
+let allDishes = []; // Store all fetched dishes
+
+async function fetchDishes() {
+  try {
+    const response = await fetch('http://localhost:3000/api/v1/dishes');
+    const data = await response.json();
+
+    if (data.error) {
+      console.error(data.error);
+      alert('Failed to retrieve dishes!');
+      return;
+    }
+
+    allDishes = data.dishes;
+    // Display all dishes on page load (assuming "Popular Dishes" represents all dishes)
+    filterDishes('Popular Dishes');
+  } catch (error) {
+    console.error(error);
+    alert('An error occurred!');
+  }
+}
+
+function filterDishes(category) {
+  let filteredDishes;
+  if (category === 'All') {
+    filteredDishes = allDishes;
+  } else {
+    filteredDishes = allDishes.filter(dish => dish.dishCategory.toLowerCase() === category.toLowerCase());
+  }
+  displayDishes(filteredDishes, category);
+}
+
+function displayDishes(dishes, category) {
+  dishList.innerHTML = ''; // Clear existing content
+
+  if (dishes.length === 0 && category !== 'All') {
+    // Only display message for non-"All" filters with no results
+    dishList.innerHTML = '<p>No dishes found for this category.</p>';
+    return;
+  }
+
+  dishes.forEach(dish => {
+    const dishItem = document.createElement('div');
+    dishItem.classList.add('dish-item');
+
+    const image = document.createElement('img');
+    image.classList.add('dish-image');
+    image.src = dish.image;
+
+    const name = document.createElement('p');
+    name.textContent = dish.dishName;
+
+    const description = document.createElement('p');
+    description.textContent = dish.dishDescription;
+   
+    const price = document.createElement('p');
+    price.textContent = `Kes.${dish.dishPrice * 1.2}`;
+
+    const button = document.createElement('button');
+    button.textContent = `Add to cart`;
+
+   
+    dishItem.appendChild(image);
+    dishItem.appendChild(name);
+    dishItem.appendChild(description);
+    dishItem.appendChild(price);
+    dishItem.appendChild(button);
+
+    dishList.appendChild(dishItem);
+    modal.style.display = "block";
+  });
+}
+function closeModal() {
+  document.getElementById("dishModal").style.display = "none";
+}
+
+// Close the modal if the user clicks outside of it
+window.onclick = function (event) {
+  const modal = document.getElementById("dishModal");
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+}
+
+fetchDishes();
+

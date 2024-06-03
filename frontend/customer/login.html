@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Login Modal</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <!-- Your existing content -->
+
+    <footer class="footer">
+        <div id="myNavbar">
+            <a href="#aboutUs">Home</a>
+            <a href="contact.html">Membership</a>
+            <a href="../userfile/user.html">Sign In</a>
+            <a href="#" id="signup-link">Sign Up</a>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>Login or Sign Up</h2>
+            <!-- Traditional Login/Sign Up -->
+            <form id="auth-form">
+                <input type="email" id="email" name="email" placeholder="Email" required>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password"  style="display: none;">
+                <button type="submit" id="auth-submit">Submit</button>
+            </form>
+            <p> Or sign in With an account?</p>
+            <!-- Social Media Buttons -->
+            <button class="social-btn" id="google-login">Sign in with Google</button>
+            <button class="social-btn" id="facebook-login">Sign in with Facebook</button>
+            <button class="social-btn" id="twitter-login">Sign in with Twitter</button>
+            <button class="social-btn" id="tiktok-login">Sign in with TikTok</button>
+            <div id="auth-toggle">
+                <span id="toggle-message">Don't have an account? <a href="#" id="toggle-link">Sign Up</a></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

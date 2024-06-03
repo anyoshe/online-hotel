@@ -1,0 +1,32 @@
+
+ body {
+    justify-content: center;
+ }
+ h1 {
+    text-align: center;
+ }
+ #dish-categories {
+    text-align: center;
+ }
+
+#popular-dishes,
+ #recent-searches,
+  #new-dishes, 
+  #all-dishes {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+
+}
+#popular-dishes li,
+#recent-searches li,
+  #new-dishes li, 
+  #all-dishes li  {
+    margin: 10px;
+    border: 1px solid gray;
+    text-align: center;
+    width: 12em;
+    list-style: none;
+    height: auto;
+}

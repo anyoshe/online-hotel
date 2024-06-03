@@ -4,30 +4,72 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const { connect, connection, model, Types } = mongoose;
-const { body, validationResult } = require('express-validator'); 
+const { body, validationResult } = require('express-validator');
+const shortid = require('shortid');
+const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
 
-//user  schema
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
+const UserSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    username: { type: String, unique: true }
 });
 
-const User = mongoose.model('User', userSchema);
+UserSchema.pre('save', function(next) {
+    if (!this.isModified('password')) return next();
+    bcrypt.hash(this.password, 10, (err, hash) => {
+        if (err) return next(err);
+        this.password = hash;
+        next();
+    });
+});
+
+const User = model('User', UserSchema);
+
 
 // Dish Models
 
 const dishSchema = new Schema({
-    dishCode: { type: String, required: true, unique: true},
-    dishName: { type: String, required: true}, 
-    quantity: { type: Number, required: true, default: 1},
-    dishPrice: { type: Number, required: true},
-    dishCategory: { type: String, required: true},
-    restaurant: { type: String, required: true},
-    subTotal: {type: Number,  required: false, default: 0},
-    dishDescription: { type: String, required: true},
-}); 
+    orderCount: { type: Number, default: 0 },
+    dishCode: { type: String, required: true, unique: true },
+    dishName: { type: String, required: true },
+    imageUrl: { type: String, required: false },
+    quantity: { type: Number, required: true, default: 1 },
+    dishPrice: { type: Number, required: true },
+    dishCategory: { type: String, required: true },
+    restaurant: { type: String, required: true },
+    subTotal: { type: Number, required: false, default: 0 },
+    dishDescription: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now },
+});
 
-const Dish = model("Dish", dishSchema);
+const Dish = model("Dish", dishSchema);  
+const userSearchHistorySchema = new Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    dishCode: { type: String, required: true },
+    searchedAt: { type: Date, default: Date.now },
+  });
+  
+  const UserSearchHistory = mongoose.model('UserSearchHistory', userSearchHistorySchema);
+  
+//restaurant schema
+const Restaurant = mongoose.model('Restaurant', new mongoose.Schema({
+    restaurant: { type: String, required: true },
+    dishName: { type: String, required: true },
+    dishCategory: { type: String, required: true },
+    dishDescription: { type: String, required: true },
+    dishPrice: { type: Number, required: true },
+}));
+//category schema
+const Category = mongoose.model('Category', new mongoose.Schema({
+    dishCategory: { type: String, required: true },
+    dishName: { type: String, required: true },
+    restaurant: { type: String, required: true },
+    dishDescription: { type: String, required: false },
+    dishPrice: { type: Number, required: true },
+}));
 
 //orderDish schema
 const orderDishSchema = new Schema({
@@ -36,7 +78,7 @@ const orderDishSchema = new Schema({
     quantity: { type: Number, required: true },
     dishPrice: { type: Number, required: true }
 });
-
+ 
 const orderSchema = new Schema({
     orderId: { type: String, required: true, unique: true },
     customerName: { type: String, required: true },
@@ -55,25 +97,74 @@ const orderSchema = new Schema({
     ],
     totalPrice: { type: Number, required: true },
     createdAt: { type: Date, default: Date.now },
-    delivered: { type: Boolean, default: false } 
+    delivered: { type: Boolean, default: false },
+    paid: { type: Boolean, default: false }
 });
+
 const Order = model('Order', orderSchema);
 
 
-//adding a new dish
+// Routes
+router.post('/auth/signup', async (req, res) => { 
+    try {
+    const { email, password, confirmPassword } = req.body;
+       console.log(email, password, confirmPassword);
+    if (password !== confirmPassword) {
+        return res.status(400).json({ success: false, message: 'Passwords do not match' });
+    }
+//check if user exist
+    const existingUser = await User.findOne({ email });
+    console.log(existingUser);
+    if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Email already registered' });
+      }
+  //create new user
+  // Create new user
+  const newUser = new User({ email, password });
 
+  // Hash password securely using a Promise-based approach
+  const saltPromise = bcrypt.genSalt(10);
+  const hashPromise = saltPromise.then(salt => bcrypt.hash(newUser.password, salt));
+
+  // Handle errors and create user
+  await Promise.all([saltPromise, hashPromise])
+    .then(([salt, hash]) => {
+      newUser.password = hash;
+      return newUser.save();
+    })
+    .then(savedUser => {
+      res.status(201).json({ success: true, message: 'User registered successfully' });
+    })
+    .catch(err => {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Error saving user' });
+    });
+} catch (err) {
+  console.error(err);
+  return res.status(500).json({ success: false, message: 'Server error' });
+}
+});
+
+
+router.post('/auth/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: false
+}));
+
+//adding a new dish
 router.post('/dishes', async (req, res) => {
     try {
-       const dish = new Dish(req.body);
-       await dish.save();
-       res.status(201).json({ message: 'Dish added successfully', dish });
+        const dish = new Dish(req.body);
+        await dish.save();
+        res.status(201).json({ message: 'Dish added successfully', dish });
     } catch (error) {
-       console.error(error);
-       res.status(500).json({ error: 'Failed to add dish', message: error.message });
+        console.error(error);
+        res.status(500).json({ error: 'Failed to add dish', message: error.message });
     }
-   });
+});
 
-   // Route to update dish details
+// Route to update dish details
 router.put('/dishes/:dishCode', [
     // Validate request body
     body('dishName').optional().isString(),
@@ -98,7 +189,7 @@ router.put('/dishes/:dishCode', [
             updatedFields.dishName = req.body.dishName;
         }
         if (req.body.dishPrice) {
-            updatedFields.dishPrice = req.body.dishPrice; 
+            updatedFields.dishPrice = req.body.dishPrice;
         }
         if (req.body.Quantity) {
             updatedFields.Quantity = req.body.Quantity;
@@ -152,7 +243,7 @@ router.delete('/dishes/:identifier', async (req, res) => {
         console.error(error);
         res.status(500).json({ error: 'Failed to delete dish', message: error.message });
     }
-}); 
+});
 
 // Route to search for a dish by dishCode or dishName
 router.get('/dishes/search', async (req, res) => {
@@ -182,41 +273,97 @@ router.get('/dishes/search', async (req, res) => {
 });
 
 
+router.get('/search', async (req, res) => {
+    const query = req.query.query;
+    const type = req.query.type;
 
-   //getting all dishes
-   router.get('/dishes', async (req, res) => {
-    try {
-       const dishes = await Dish.find({});  
-       res.json({ message: 'Dishes retrieved successfully', dishes });
-    } catch (error) {
-       console.error(error);
-       res.status(500).json({ error: 'Failed to retrieve dishes', message: error.message });
+    if (!query || !type) {
+        return res.status(400).json({ error: 'Missing query or type parameter' });
     }
-   });
 
-   //getting a dish using dishCode
-   router.get('/dishes/:dishCode', async (req, res) => {
     try {
-       const dish = await Dish.findOne({ dishCode: req.params.dishCode });
-       if (!dish) {
-         return res.status(404).send({ message: 'Dish not found' });
-       }
-       res.send(dish);
+        let results;
+        switch (type) {
+            case 'dishes':
+                results = await Dish.find({
+                    $or: [
+                        { dishName: { $regex: query, $options: 'i' } },
+                        { dishDescription: { $regex: query, $options: 'i' } }
+                    ]
+                });
+                break;
+            case 'restaurants':
+                results = await Dish.find({ restaurant: { $regex: query, $options: 'i' } }).distinct('restaurant');
+                break;
+            case 'categories':
+                results = await Dish.find({ dishCategory: { $regex: query, $options: 'i' } }).distinct('dishCategory');
+                break;
+            default:
+                return res.status(400).json({ error: 'Invalid type parameter' });
+        }
+
+        res.json({ results });
     } catch (error) {
-       console.error(error);
-       res.status(500).send(error);
+        console.error('Error during search:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-   });
-   
-  //fetching restaurants
-  router.get('/restaurants/:cuisineType', async (req, res) => {
+});
+
+async function searchData(query, type) {
+    const regex = new RegExp(query, 'i'); // Case-insensitive regex for partial matching
+    switch (type) {
+        case 'dishes':
+            return await Dish.find({
+                $or: [
+                    { dishName: regex },
+                    { dishDescription: regex },
+                    { dishCategory: regex },
+                    { restaurant: regex },
+                ]
+            });
+        case 'restaurants':
+            return await Dish.find({ dishCategory: regex }).distinct('restaurant');
+        case 'categories':
+            return await Dish.find({ dishCategory: regex }).distinct('dishCategory');
+        default:
+            return [];
+    }
+}
+
+//getting all dishes
+router.get('/dishes', async (req, res) => {
+    try {
+        const dishes = await Dish.find({});
+        res.json({ message: 'Dishes retrieved successfully', dishes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to retrieve dishes', message: error.message });
+    }
+});
+
+//getting a dish using dishCode
+router.get('/dishes/:dishCode', async (req, res) => {
+    try {
+        const dish = await Dish.findOne({ dishCode: req.params.dishCode });
+        if (!dish) {
+            return res.status(404).send({ message: 'Dish not found' });
+        }
+        res.send(dish);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+});
+
+//fetching restaurants
+router.get('/restaurants/:cuisineType', async (req, res) => {
     try {
         const cuisineType = req.params.cuisineType;
         const restaurants = await Dish.find({ dishCategory: cuisineType }).distinct('restaurant').exec();
-        
+
         // Remove duplicates
-        const uniqueRestaurants = [...new Set(restaurants)]; 
-        
+        const uniqueRestaurants = [...new Set(restaurants)];
+
         res.json(uniqueRestaurants); // Send the restaurants as JSON
     } catch (error) {
         console.error('Error fetching restaurants:', error);
@@ -230,28 +377,28 @@ router.get('/restaurantDishes', async (req, res) => {
     const restaurantName = req.query.restaurant; // Access restaurant name from query parameter
 
     try {
-      const restaurantName = req.query.restaurant; // Access restaurant name from query parameter
-  
-      if (!restaurantName) {
-        // Fetch all dishes if no restaurant specified (default behavior)
-        const dishes = await Dish.find().exec();
-        return res.json({dishes});
-      }
-      const lowerCaseRestaurantName = restaurantName.toLowerCase(); // Convert to lowercase
-      // Replace with your actual database query logic
-       // Replace with your actual database query logic with case-insensitive comparison
-    const dishes = await Dish.find({ restaurant: { $regex: lowerCaseRestaurantName, $options: 'i' } }).exec();
-      res.json({dishes}); 
-    } catch (error) {
-      console.error('Error fetching dishes:', error);
-      res.status(500).json({ error: 'Server error' });
-    }
-  });
-  // working with orders from the customer
+        const restaurantName = req.query.restaurant; // Access restaurant name from query parameter
 
-  //Function to generate custom order IDs
+        if (!restaurantName) {
+            // Fetch all dishes if no restaurant specified (default behavior)
+            const dishes = await Dish.find().exec();
+            return res.json({ dishes });
+        }
+        const lowerCaseRestaurantName = restaurantName.toLowerCase(); // Convert to lowercase
+        // Replace with your actual database query logic
+        // Replace with your actual database query logic with case-insensitive comparison
+        const dishes = await Dish.find({ restaurant: { $regex: lowerCaseRestaurantName, $options: 'i' } }).exec();
+        res.json({ dishes });
+    } catch (error) {
+        console.error('Error fetching dishes:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+// working with orders from the customer
+
+//Function to generate custom order IDs
 async function generateOrderId() {
-    const latestOrder = await Order.findOne({}, {}, { sort: { 'createdAt' : -1 } });
+    const latestOrder = await Order.findOne({}, {}, { sort: { 'createdAt': -1 } });
     if (latestOrder) {
         const latestOrderId = latestOrder?.orderId?.substring(1); // Extract numeric part
         const nextOrderId = parseInt(latestOrderId) + 1;
@@ -271,10 +418,10 @@ async function createOrder(orderData) {
             ...otherOrderData,
             selectedCategory,
             selectedRestaurant
-            });
-            if (!selectedCategory || !selectedRestaurant) {
-                throw new Error('Missing required order details: selectedCategory and selectedRestaurant');
-            }
+        });
+        if (!selectedCategory || !selectedRestaurant) {
+            throw new Error('Missing required order details: selectedCategory and selectedRestaurant');
+        }
         const savedOrder = await newOrder.save();
         return savedOrder;
     } catch (error) {
@@ -282,8 +429,8 @@ async function createOrder(orderData) {
     }
 }
 
-module.exports = {  Order, createOrder};
- // Your route handler for creating a new order
+module.exports = { Order, createOrder };
+// Your route handler for creating a new order
 router.post('/orders', async (req, res) => {
     try {
         // Extract order data from the request body
@@ -292,7 +439,7 @@ router.post('/orders', async (req, res) => {
         // Generate custom order ID and assign it to the order data
         const orderId = await generateOrderId();
         orderData.orderId = orderId;
- 
+
         // Create a new order and save it to the database
         const newOrder = await createOrder(orderData);
 
@@ -333,7 +480,8 @@ router.get('/orders', async (req, res) => {
                     };
                 }),
                 totalPrice: order.totalPrice,
-                createdAt: order.createdAt
+                createdAt: order.createdAt,
+                delivered: order.delivered
             };
         });
 
@@ -348,25 +496,47 @@ router.get('/orders', async (req, res) => {
 
 // PUT route to mark an order as delivered
 
-// Route to mark an order as delivered
-router.put('/orders/:orderId/delivered', async (req, res) => {
-    const orderId = req.params.orderId;
-
+router.put('/orders/:orderId/deliver', async (req, res) => {
     try {
-        // Find the order by orderId and update its delivered status
-        const order = await Order.findOneAndUpdate({ orderId: orderId }, { delivered: true }, { new: true });
-
+        const orderId = req.params.orderId;
+        const order = await Order.findOne({ orderId });
         if (!order) {
-            return res.status(404).json({ error: 'Order not found' });
+            return res.status(404).json({ message: 'Order not found' });
         }
 
-        // Send success response
-        res.status(200).json({ message: 'Order marked as delivered successfully' });
+        order.delivered = true;
+
+        await order.save();
+
+        res.json({ message: 'Order marked as delivered', order });
     } catch (error) {
-        console.error('Error marking order as delivered:', error);
-        res.status(500).json({ error: 'Failed to mark order as delivered' });
+        console.error(error);
+        res.status(500).send('Server error');
     }
-});   
+});
+
+//mark as paid
+router.post('/updatePaidStatus', async (req, res) => {
+    console.log('Received updatePaidStatus request');
+    const { restaurant, orderIds } = req.body;
+    console.log(restaurant, orderIds);
+    //console.log(Order.find().explain('executionStats'));
+    try {
+        // Execute the updateMany operation
+        const result = await Order.updateMany(
+            { selectedRestaurant: restaurant, orderId: { $in: orderIds } },
+            { $set: { paid: true } }
+        );
+
+        // Log the response from the update operation
+        console.log(result);
+
+    } catch (error) {
+        console.error('Error updating orders:', error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+});
+
 
 // Route to fetch delivered orders and calculate total sales and commission
 router.get('/orders/delivered', async (req, res) => {
@@ -379,7 +549,7 @@ router.get('/orders/delivered', async (req, res) => {
         deliveredOrders.forEach(order => {
             totalSales += order.totalPrice;
         });
-        
+
         const commission = totalSales * 0.1; // Assuming commission is 10% of total sales
 
         // Send the delivered orders, total sales, and commission in the response
@@ -390,5 +560,122 @@ router.get('/orders/delivered', async (req, res) => {
     }
 });
 
+router.get('/searchAny', async (req, res) => {
+    console.log('Received search request');
+    const searchTerm = req.query.q;
+    const type = req.query.type;
+    console.log('Received request:', req.query);
+    if (!searchTerm || !type) {
+        console.log('Bad request: Missing required query parameters');
+        return res.status(400).json({ error: 'Bad Request', message: 'Missing required query parameters: q and type' });
+    }
 
+    let filter = {};
+    if (type === 'suggestion') {
+        if (!searchTerm) {
+            return res.json([]); // Return empty array for empty search
+        }
+        filter.$or = [
+            { dishName: { $regex: searchTerm, $options: 'i' } },
+            { dishDescription: { $regex: searchTerm, $options: 'i' } },
+            { dishCategory: { $regex: searchTerm, $options: 'i' } }
+        ];
+    } else if (type === 'exact') {
+        filter = { name: searchTerm };
+    }
+
+    try {
+        const results = await Dish.find(filter).exec(); // Use the model to find documents
+        console.log('Search results:', results);
+        res.json(results);
+    } catch (err) {
+        console.error('Error occurred during the search:', err);
+        res.status(500).json({ error: 'An error occurred during the search.', details: err.message });
+    }
+});
+router.get('/dishes/details/:dishCode', async (req, res) => {
+    const { dishCode } = req.params;
+  
+    try {
+      // Fetch the dish details from the database
+      const dishDetail = await Dish.findOne({ dishCode: dishCode }, '-_id'); // Exclude '_id' field if not needed
+  
+      // Check if the dish detail was found
+      if (!dishDetail) {
+        return res.status(404).json({ message: 'Dish not found' });
+      }
+  
+      // At this point, you would typically combine the fetched details with other data structures
+      // Since we're focusing on fetching the missing details, let's assume you have a way to combine them
+      // For demonstration, we're returning the fetched detail directly
+      res.json(dishDetail);
+    } catch (error) {
+      console.error('Error fetching dish details:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
+  
+// Route for category suggestions
+router.get('/categories/suggestions', async (req, res) => {
+    const { categoryName } = req.query;
+    try {
+      const categories = await Category.find({ name: { $regex: categoryName, $options: 'i' } });
+      res.json(categories);
+    } catch (error) {
+      console.error('Error fetching category suggestions:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  
+  // Route for restaurant suggestions
+  router.get('/restaurants/suggestions', async (req, res) => {
+    const { restaurantName } = req.query;
+    try {
+      const restaurants = await Restaurant.find({ name: { $regex: restaurantName, $options: 'i' } });
+      res.json(restaurants);
+    } catch (error) {
+      console.error('Error fetching restaurant suggestions:', error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  });
+  //fetching dishes by category
+  router.get('/v1/dishes', async (req, res) => {
+    try {
+      const { category } = req.query; // Get category from query parameter
+  
+      let dishes;
+      if (category) {
+        dishes = await Dish.find({ dishCategory: category }); // Filter by category if provided
+      } else {
+        dishes = await Dish.find({}); // Retrieve all dishes if no category specified
+      }
+  
+      res.json({ message: 'Dishes retrieved successfully', dishes });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to retrieve dishes', message: error.message });
+    }
+  });
+
+//   router.get('/userSearchHistory', async (req, res) => {
+//     try {
+//       // Extract userId from the request query
+//       const userId = req.query.userId;
+  
+//       // Check if userId is missing or invalid
+//       if (!userId) {
+//         return res.status(400).json({ error: 'Missing userId parameter' });
+//       }
+  
+//       // Attempt to retrieve user search history
+//       const searchHistory = await UserSearchHistory.find({ userId });
+  
+//       // Return search history as response
+//       res.json(searchHistory || []);
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   }); 
 module.exports = router; 

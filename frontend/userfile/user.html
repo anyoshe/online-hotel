@@ -9,10 +9,23 @@
 </head>
 
 <body>
-    <h4 class="page-header">Welcome to Online Restaurant Management System(ORMS)</h4>
+    <nav class="navs">
+        <div class="navs-container">
+            <div class="logo"><img src="../assets/online Chefs (1).png" width="85" height="55" border-radius></div>
+            <div class="Kitchen">
+                <h3>OUR KITCHEN</h3>
+            </div>
+               <a href="./../customer/index.html">Go Home</a>
+            <div class="toggle-button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
     <div class="page-content">
         <div class="dishControl">
-
+              <h4>MENU CONTROLS</h4>
             <button id="openModalBtn">Add New Dishes</button>
 
             <div id="modalContainer" class="hidden">
@@ -29,7 +42,7 @@
                                 required>
                             <label for="quantity" class="quantity">Quantity :</label>
                             <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input"
-                                required>
+                                required> 
                             <label for="dishPrice" class="label">Dish Price :</label>
                             <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice"
                                 class="input" required>
@@ -83,44 +96,70 @@
             </div>
             <div class="deleSearch">
                 <div class="dishDetails">
-                    <h4>Delete Dish</h4>
-                    <label for="dishIdentifier">Enter Dish Code or Name:</label>
+                    <label for="dishIdentifier">Delete Dish</label>
                     <input type="text" id="dishIdentifier" placeholder="Dish Code or Name">
-                    <!-- <button onclick="getDishDetails()">Get Details</button> -->
                     <button onclick="confirmDeleteDish()">Delete</button>
                     <div id="dishDetailsContainer"></div>
                 </div>
 
                 <div class="searchDish">
-                    <h4>Search for Dish</h4>
-                    <label for="searchQuery">Enter Dish Code or Name:</label>
+                    <label for="searchQuery">Search for Dish</label>
                     <input type="text" id="searchQuery" placeholder="Dish Code or Name">
                     <button onclick="searchDish()">Search</button>
                     <div id="searchResults"></div>
                 </div>
-                <h4>pending Orders</h4>
-                <button id="fetchOrdersBtn">Fetch Orders</button>
-                <h4>All Dishes</h4>
-                <button onclick="fetchAllDishes()">Fetch All Dishes</button>
             </div>
         </div>
         <div class="orderControl">
+            <nav class="navbar">
+                <div class="navbar-container">
+                    <li><a href="#">Patners</a></li>
+                    <div class="search-bar">
+                        <input type="text" id="searchQuery" placeholder="Search dishes, restaurants, categories">
+                        <select id="searchType">
+                            <option value="">Choose type</option>
+                            <option value="dishes">Dishes</option>
+                            <option value="restaurants">Restaurants</option>
+                            <option value="categories">Categories</option>
+                        </select>
+                        <button id="searchButton">Search</button>
+                    </div>
+                    <div id="searchResults"></div>
+                      
+                      
+                    <ul class="nav-links">
+                        <li><a href="#" onclick="fetchAllDishes()">Dishes</a></li>
+                        <li><a href="#" id="fetchOrdersButton">Orders</a></li>
+                        <li><a href="#" id="fetchSalesButton">Sales</a></li>
+                        <li><a href="#">Customers</a></li>
+
+                    </ul>
+                    <div class="toggle-button">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </nav>
             <div class="allDishes">
                
                 <div id="dishContainer"></div>
             </div>
 
             <div class="dayOrders">
-                <!-- <h4>Order Management System</h4>
-                <button id="fetchOrdersBtn">Fetch Orders</button> -->
-                <!-- <div id="ordersList"></div> -->
-                <p>Expected Sales: Kes.<span id="totalSalesExpected">0</span></p>
-                <p>Expected Commission: Kes.<span id="commissionExpected">0</span></p><br>
-                
                 <div id="ordersList"></div>
-                <!-- <p>Total Sales: Kes.<span id="totalSales">0</span></p>
-                <p>Commission Due: Kes.<span id="commissionDue">0</span></p>
-                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p> -->
+                <div id="worthSummary">
+                <p>Expected Sales: Kes. <span id="totalSalesExpected"> 0.00</span></p> 
+                <p>Expected Commission: Kes. <span id="commissionExpected">0.00</span></p><br>
+                </div>
+                <div id="sales">
+                <div id="salesList"></div> 
+                <div id="salesTotal">
+                 <p>Total Sales:  Kes.  <span id="totalSales">0.00</span></p>
+                <p>Commission Due: Kes.  <span id="commissionDue">0.00</span></p>
+                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
+                 </div> 
+                </div>
             </div>
         </div>
 

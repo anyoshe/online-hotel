@@ -6,7 +6,7 @@ document.getElementById('openModalBtn').addEventListener('click', function () {
 document.getElementById('addDishForm').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent the form from submitting normally
 
-    
+
     document.getElementById('submitButton').addEventListener('click', async (event) => {
         event.preventDefault(); // Prevent default button click behavior
 
@@ -42,7 +42,7 @@ document.getElementById('addDishForm').addEventListener('submit', function (even
     });
 
 });
-document.getElementById('closeModalBtn').addEventListener('click', function() {
+document.getElementById('closeModalBtn').addEventListener('click', function () {
     document.getElementById('modalContainer').classList.add('hidden');
 });
 
@@ -97,7 +97,7 @@ document.getElementById('updateDishForm').addEventListener('submit', async (even
     }
     document.getElementById('updateModalContainer').classList.add('hidden');
 });
-document.getElementById('closeUpdateModalBtn').addEventListener('click', function() {
+document.getElementById('closeUpdateModalBtn').addEventListener('click', function () {
     document.getElementById('updateModalContainer').classList.add('hidden');
 });
 
@@ -141,8 +141,7 @@ function getDishDetails() {
     const dishDetailsContainer = document.getElementById('dishDetailsContainer');
     dishDetailsContainer.innerHTML = `<p>Loading dish details...</p>`;
     // Make a fetch request to get dish details
-    // Once you receive the details, update the dishDetailsContainer with the information
-    // For now, let's just display the identifier
+
     dishDetailsContainer.innerHTML = `<p>Dish Identifier: ${identifier} Dish Name: ${identifier.dishName} </p>`;
     // document.getElementById('dishIdentifier').value = '';
 }
@@ -223,52 +222,64 @@ function displayDishes(dishes) {
 
 
 //Function to fetch all undelivered orders
-async function fetchAndDisplayAllOrders() {
+async function fetchAndDisplayUndeliveredOrders() {
     try {
         const response = await fetch('http://localhost:3000/api/orders');
         const orders = await response.json();
+        console.log('Fetched orders:', orders);
+        if (Array.isArray(orders)) {
+            const undeliveredOrders = orders.filter(order => !order.delivered);
+            // const deliveredOrders = orders.filter(order => order.delivered);
+            displayUndeliveredOrders(undeliveredOrders);
+            // displayDeliveredOrders(deliveredOrders);
 
-        // Display orders
-        displayOrders(orders);
+            const totalSales = undeliveredOrders.reduce((acc, undeliveredOrders) => acc + undeliveredOrders.totalPrice, 0);
+            const commissionExpected = totalSales * 0.1;
+            document.getElementById('totalSalesExpected').textContent = totalSales.toFixed(2);
+            document.getElementById('commissionExpected').textContent = commissionExpected.toFixed(2);
+        } else {
+            console.error('Invalid data received. Unexpected response format.');
+        }
 
-        // Calculate and display expected total sales and commission
-        const totalSales = orders.reduce((acc, order) => acc + order.totalPrice, 0);
-        const commissionExpected = totalSales * 0.1;
-        document.getElementById('totalSalesExpected').textContent = totalSales;
-        document.getElementById('commissionExpected').textContent = commissionExpected;
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to fetch orders');
     }
 }
 //Display all undelivered orders
-function displayOrders(orders) {
-        const ordersList = document.getElementById('ordersList');
-        ordersList.innerHTML = ''; // Clear previous orders
-        // Step 1: Group orders by restaurant type
-        const groupedOrders = orders.reduce((acc, order) => {
-            const key = order.selectedRestaurant;
-            if (!acc[key]) {
-                acc[key] = [];
-            }
-            acc[key].push(order);
-            return acc;
-        }, {});
-    
-        // Step 2: Display grouped orders
-        Object.keys(groupedOrders).forEach(restaurantType => {
-            const restaurantSection = document.createElement('div');
-            restaurantSection.id = `${restaurantType}-section`; 
-            restaurantSection.innerHTML = `
-                <h2>Restaurant:  ${restaurantType}</h2>
+function displayUndeliveredOrders(orders) {
+    console.log('orders type:', typeof orders);
+
+    const ordersList = document.getElementById('ordersList');
+    ordersList.innerHTML = ''; // Clear previous orders
+    // Step 1: Group orders by restaurant type
+    const groupedOrders = orders.reduce((acc, order) => {
+        const key = order.selectedRestaurant;
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(order);
+        return acc;
+    }, {});
+
+    // Step 2: Display only undelivered orders
+    Object.keys(groupedOrders).forEach(restaurantType => {
+        const restaurantSection = document.createElement('div');
+        restaurantSection.id = `${restaurantType}-section`;
+        restaurantSection.innerHTML = `
+                <h2>${restaurantType}</h2>
+                <hr>
                 <ul id="orders-${restaurantType}">
                     <!-- Orders will be appended here -->
                 </ul>
             `;
-            ordersList.appendChild(restaurantSection);
-    
-            groupedOrders[restaurantType].forEach(order => {
+
+        ordersList.appendChild(restaurantSection);
+
+        groupedOrders[restaurantType].forEach(order => {
+            if (!order.delivered) {
                 const orderElement = document.createElement('div');
+                orderElement.id = 'orderDetails';
                 orderElement.innerHTML = `
                 <p>Order ID: ${order.orderId}</p>
                 <p>Customer Name: ${order.customerName}</p>
@@ -280,59 +291,246 @@ function displayOrders(orders) {
                 <ul>
                     ${order.orderedDishes.map(dish => `<li>${dish.dishName} - Quantity: ${dish.quantity}</li>`).join('')}
                 </ul>
-                <p>Total Price: Kes.${order.totalPrice}</p>
+                <p>Total Price: Kes.${order.totalPrice}.00</p>
                 <p>Created At: ${order.createdAt}</p>
                 <button onclick="markAsDelivered('${order.orderId}')">Mark Delivered</button>
             
             `;
                 document.getElementById(`orders-${restaurantType}`).appendChild(orderElement);
-            });
+            }
         });
-    }
-
-// Fetch and display orders when the page loads
-window.onload = fetchAndDisplayAllOrders;
-
-// Function to mark an order as delivered
+    });
+}
+const fetchOrdersButton = document.getElementById('fetchOrdersButton');
+fetchOrdersButton.addEventListener('click', fetchAndDisplayUndeliveredOrders)
 
 async function markAsDelivered(orderId) {
     try {
+        const response = await fetch(`http://localhost:3000/api/orders/${orderId}/deliver`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-        console.log('Marking order as delivered:', orderId); // Debugging statement
-
-
-        const response = await fetch(`http://localhost:3000/api/orders/${orderId}/delivered`, { method: 'PUT' });
-        console.log('Response:', response); // Debugging statement
         if (!response.ok) {
-            throw new Error('Failed to mark order as delivered');
+            throw new Error(`HTTP error status: ${response.status}`);
         }
-        console.log('Order marked as delivered successfully');
-        // Remove the marked order from the list
-        const index = orders.findIndex(order => order.orderId === orderId);
-        if (index !== -1) {
-            orders.splice(index, 1);
-            displayOrders(orders);
-        }
+
+        const responseData = await response.json();
+        alert('Order Marked as delivered successfully');
+        console.log('Order marked as delivered successfully.', responseData);
+
+        // Update UI using a separate function
+        await updateOrdersUI(orderId);
+
     } catch (error) {
-        console.error('Error marking order as delivered:', error);
-        alert('Failed to mark order as delivered');
+        console.error('Error:', error);
+        alert('Failed to mark order as delivered.');
     }
 }
 
-// Function to mark an order as delivered
-async function markAsDelivered(orderId) {
+function calculateTotalSales(orders) {
+    return orders.reduce((acc, order) => acc + order.totalPrice, 0);
+}
+async function updateOrdersUI(orderId) {
     try {
-        const response = await fetch(`http://localhost:3000/api/orders/${orderId}/delivered`, { method: 'PUT' });
-        if (response.ok) {
-            // If order is successfully marked as delivered
-            // Remove the delivered order from the list and display only undelivered orders
-            fetchAndDisplayUndeliveredOrders();
-        } else {
-            console.error('Failed to mark order as delivered');
-        }
+        // Re-fetch all orders to ensure updated data
+        const response = await fetch('http://localhost:3000/api/orders');
+        const orders = await response.json();
+
+        // Filter delivered and undelivered orders
+        const deliveredOrders = orders.filter(order => order.delivered);
+        updateSalesList(deliveredOrders); // Pass only delivered orders
+        const undeliveredOrders = orders.filter(order => !order.delivered);
+
+        // Update undelivered order list efficiently
+        displayUndeliveredOrders(undeliveredOrders);
+
+        // Update sales list efficiently
+        const groupedSales = updateSalesList(deliveredOrders); // Pass delivered orders only
+
+        // Calculate and display totals
+        const totalSales = calculateTotalSales(deliveredOrders);
+        const commissionDue = totalSales * 0.1;
+        document.getElementById('totalSales').textContent = totalSales.toFixed(2);
+        document.getElementById('commissionDue').textContent = commissionDue.toFixed(2);
+        document.getElementById('totalDeliveries').textContent = deliveredOrders.length;
+
     } catch (error) {
-        console.error('Error marking order as delivered:', error);
-        alert('Failed to mark order as delivered');
+        console.error('Error fetching orders:', error);
     }
 }
+
+async function updateSalesList(deliveredOrders) {
+
+    const salesList = document.getElementById('salesList');
+    salesList.innerHTML = ''; // Clear previous entries
+
+    const groupedSales = deliveredOrders.reduce((acc, order) => {
+        const restaurant = order.selectedRestaurant;
+        if (!acc[restaurant]) {
+            acc[restaurant] = {
+                restaurantName: restaurant,
+                orderIds: [],
+                totalPrice: 0,
+                paid: false
+            };
+        }
+        acc[restaurant].orderIds.push(order.orderId);
+        acc[restaurant].totalPrice += order.totalPrice;
+        return acc;
+    }, {});
+
+    // Display grouped sales data
+    Object.values(groupedSales).forEach(restaurantData => {
+        const salesItem = document.createElement('div');
+        salesItem.classList.add('sales-item');
+        // Add 'paid' class if applicable
+        const classNameToAdd = restaurantData.paid? 'paid' : '';
+        if (classNameToAdd) {
+            salesItem.classList.add(classNameToAdd); 
+        }
+        salesItem.innerHTML = `
+        <h3><span>${restaurantData.restaurantName}</span></h3> 
+        <ul> 
+        <p>Order IDs:</p>
+        ${restaurantData.orderIds.map(orderId => `<li>${orderId}</li>`).join('')} 
+    
+    
+        </ul>
+        <p>Total Sales: Kes.<span>${restaurantData.totalPrice.toFixed(2)}</span></p>
+        <button onClick="markPaid('${restaurantData.restaurantName}', [${restaurantData.orderIds.map(orderId => `'${orderId}'`).join(', ')}])">Paid</button>
+        
+      `;
+        salesList.appendChild(salesItem);
+    });
+    return groupedSales; // Return grouped sales data
+}
+
+
+document.getElementById('fetchSalesButton').addEventListener('click', () => {
+    // Assuming fetchAndDisplayAllOrders is responsible for displaying the sales list
+    updateOrdersUI();
+});
+
+
+
+async function markPaid(restaurantName, orderIds) {
+    try {
+        console.log(restaurantName, orderIds);
+        const response = await fetch('http://localhost:3000/api/updatePaidStatus', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // body: JSON.stringify({ test: 'success' })
+            body: JSON.stringify({ restaurant: restaurantName, orderIds: orderIds })
+        });
+        console.log(restaurantName, orderIds);
+  
+        const result = await response.json();
+        console.log(result.message); // Log success message from the backend
+        console.log("Attempting to remove salesItem...");
+
+const salesItems = document.querySelectorAll('.sales-item');
+
+salesItems.forEach(item => {
+    const restaurantNameElement = item.querySelector('h3 span');
+    console.log(`Comparing ${restaurantNameElement.textContent.trim()} with ${restaurantName}`);
+
+    // Compare only the restaurant name
+    if (restaurantNameElement.textContent.trim() === restaurantName.trim()) {
+        console.log("Removing item because restaurant names match");
+        item.remove();
+    } else {
+        console.log("Condition not met - restaurant names do not match");
+    }
+});
+console.log("Removed salesItem.");
+    } catch (error) {
+        console.error('Error updating paid status:', error);
+    }
+}
+
+console.log("Finished processing sales items.");
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('searchButton').addEventListener('click', async () => {
+        console.log("Search button clicked");
+        const searchQuery = document.getElementById('searchQuery').value.trim();
+        const searchType = document.getElementById('searchType').value.trim();
+
+        if (!searchQuery) {
+            alert('Please enter a search query');
+            return;
+        }
+
+        if (!searchType) {
+            alert('Please select a search type');
+            return;
+        }
+        console.log("About to fetch data...");
+        console.log(`Sending request to server with query: ${searchQuery}, type: ${searchType}`);
+
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(searchQuery)}&type=${encodeURIComponent(searchType)}`);
+            console.log("Fetch completed", response);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Search failed');
+            }
+
+            const results = data.results;
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = ''; // Clear previous results
+
+            if (!results.length) {
+                searchResults.innerHTML = '<p>No results found.</p>';
+                return;
+            }
+
+            let content = '';
+            switch (searchType) {
+                case 'dishes':
+                    content = results.map(dish => `
+                        <div>
+                            <h3>${dish.dishName}</h3>
+                            <p>Price: ${dish.dishPrice}</p>
+                            <p>Category: ${dish.dishCategory}</p>
+                            <p>Restaurant: ${dish.restaurant}</p>
+                            <p>Description: ${dish.dishDescription}</p>
+                        </div>
+                    `).join('');
+                    break;
+                case 'restaurants':
+                    content = results.map(restaurant => `
+                        <div>
+                            <h3>${restaurant.restaurant}</h3>
+                            <p>Cuisine: ${restaurant.dishCategory}</p>
+                            <p>Average Price: ${restaurant.averagePrice}</p>
+                        </div>
+                    `).join('');
+                    break;
+                case 'categories':
+                    content = results.map(category => `
+                        <div>
+                            <h3>${category.dishCategory}</3>
+                            <p>Description: ${category.dishDescription}</p>
+                        </div>
+                    `).join('');
+                    break;
+            }
+
+            searchResults.innerHTML = content;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            alert(error.message);
+        }
+
+    });
+
+});
 
