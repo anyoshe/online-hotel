@@ -1,5 +1,8 @@
 body {
     font-family: Arial, sans-serif;
+    height: 100vh;
+    overflow-y: hidden;
+    display: flex;
 }
 
 .modal {
@@ -18,7 +21,7 @@ body {
 
 .modal-content {
     background-color: #fefefe;
-    margin: 5% auto;
+    margin: 0% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
@@ -82,6 +85,6 @@ button[type="submit"]:hover {
 }
 
 #auth-toggle a {
-    color: #4CAF50;
+    color: #332f71ff;
     cursor: pointer;
 }

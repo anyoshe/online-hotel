@@ -55,39 +55,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // authForm.onsubmit = function(event) {
+    //     event.preventDefault();
+    //     const email = document.getElementById('email').value.trim();
+    //     const password = document.getElementById('password').value.trim();
+    //     const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+    //     document.getElementById('confirm-password').addEventListener('focus', function() {
+    //         this.required = true;
+    //     }, { once: true }); // Set required when the field becomes visible/focusable
+
+    //     if (isSignUp && password !== confirmPassword) {
+    //         alert('Passwords do not match!');
+    //         return;
+    //     }
+        
+       
+    //    console.log(email, password, confirmPassword);
+    //     const endpoint = isSignUp ? 'http://localhost:3000/api/auth/signup' : 'http://localhost:3000/api/auth/login';
+
+    //     fetch(endpoint, { 
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({ email, password, confirmPassword: isSignUp ? confirmPassword : undefined }),
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data);
+    //         if (data.success) {
+    //             alert('Log in successful');
+    //             // Handle successful authentication (e.g., redirect or update UI)
+    //             window.location.href = 'menu.html';
+    //         } else {
+    //             alert('Authentication failed: ' + data.message);
+    //         }
+    //     })
+    //     .catch(error => console.error('Error:', error));
+    // };
     authForm.onsubmit = function(event) {
         event.preventDefault();
+      
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirm-password').value.trim();
-
         if (isSignUp && password !== confirmPassword) {
-            alert('Passwords do not match!');
-            return;
+          alert('Passwords do not match!');
+          return;
         }
-        // if (!isSignUp) {
-        //     confirmPassword.removeAttribute('required');
-        //   }
-           
-       console.log(email, password, confirmPassword);
+      
+        // Only send necessary data based on signup/login state
+        const body = {
+          email,
+          password,
+        };
+        if (isSignUp) {
+          body.confirmPassword = confirmPassword;
+        }
+      
         const endpoint = isSignUp ? 'http://localhost:3000/api/auth/signup' : 'http://localhost:3000/api/auth/login';
-
+      
         fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, confirmPassword: isSignUp ? confirmPassword : undefined }),
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                alert('Authentication successful');
-                // Handle successful authentication (e.g., redirect or update UI)
+          if (data.success) {
+            alert('Authentication successful');
+            // Handle successful authentication (e.g., redirect or update UI)
+            if (isSignUp) {
+              // Handle successful signup (e.g., redirect to login page)
             } else {
-                alert('Authentication failed: ' + data.message);
+              window.location.href = 'menu.html'; // Redirect to menu.html on successful login
             }
+          } else {
+            alert('Authentication failed: ' + data.message);
+          }
         })
         .catch(error => console.error('Error:', error));
-    };
+      };
+    
 });

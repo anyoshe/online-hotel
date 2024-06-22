@@ -59,7 +59,7 @@ button {
     border-radius: 5px;
     cursor: pointer; 
     margin: 10px;
-    box-shadow: 0 6px 8px 0;
+    /* box-shadow: 0 3px 4px 0; */
     
 }
 #customer-container {
@@ -70,15 +70,17 @@ button {
 #myForm {
     display: flex;
     flex-direction: column;
-    width: 30%;
-    float: right;
-    /* height: 35em; */
-    margin-right: 15px;
-    justify-content: space-evenly;
+    text-align: center;
+    width: 50%;
+    margin: 15px auto;
+    justify-content: center;
+    align-content: center;
     align-items: center; 
     border: 1px solid #666;
+    justify-content: space-evenly;
     box-shadow: 0 2px 2px 0;
-}
+    background-color: #ffff;
+} 
 input {
     width: 90%;
     padding: 8px;
@@ -137,7 +139,7 @@ h3 {
 }
 
 #customerDetails button  {
-    /* background-color: rgb(216, 213, 213); Green */
+    background-color: #ffff; 
     border: none;
     color: rgb(77, 7, 7);
     padding: 5px 10px;
@@ -145,7 +147,7 @@ h3 {
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 4px 2px; 
+    margin: 4px 0px; 
     cursor: pointer;
     border-radius: 10px;
     justify-items: center;
@@ -167,6 +169,9 @@ h3 {
 #useMyLocationButton {
     display: flex;
    margin: 10px auto;
+   background-color: #ffff;
+   box-shadow: none;
+   border: 1px solid black;
 }
 li {
     list-style: none; 
@@ -188,35 +193,35 @@ li {
     padding: 10px;
     border-radius: 10px;
     /* box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
-    width: 22em;
+    /* width: 100%;  */
 
 }
 #orderForm {
-    padding: 10px;
-    width: 22em;
+     padding: 10px;
+    width: 22em; 
 
 }
 #cartDiv p {
-    margin: 10px;
+    margin: 10px; 
     border: 1px solid #ccc;
     padding: 10px;
     text-align: end;
     border-radius: 10px;
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    /* box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
     font-weight: 700;
 
 }
 
 .modal {
-    display: none; /* Hidden by default */
-    position: fixed; /* Stay in place */
+     display: none; /* Hidden by default  */
+    position: fixed; /* Stay in place  */
     z-index: 1; /* Sit on top */
     left: 20%;
     top: 0;
     width: 40%; /* Full width */
-    /* height: 100%; Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
+     height: 50%; 
+    overflow: auto; /* Enable scroll if needed  */
+    background-color: rgb(0,0,0); /* Fallback color  */
     background-color: aqua;/* Black w/ opacity */
     padding: 20px;
     align-content: center;
@@ -248,13 +253,13 @@ li {
   
   .modal.open {
     opacity: 1;
-  }
+  } 
   
   
      
   #mapContainer {
     display: none;
-  }
+  } 
 
 
 

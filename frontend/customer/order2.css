@@ -132,3 +132,61 @@ input {
 
 } */
 
+:root {
+    --cerulean: #107FAAff;
+    --folly: #FE2860ff;
+    --amaranth-purple: #9D0947ff;
+    --cerulean-2: #107FAAff;
+    --prussian-blue: #022033ff;
+    --battleship-gray: #969696ff;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: var(--prussian-blue);
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: var(--cerulean);
+    padding: 20px;
+    text-align: center;
+  }
+  
+  header h1 {
+    margin: 0;
+    color: white;
+  }
+  
+  main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+  }
+  
+  .logo {
+    background-color: var(--cerulean-2);
+    padding: 20px;
+    border-radius: 50%;
+  }
+  
+  .logo img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .tagline {
+    margin-top: 20px;
+    font-size: 1.5em;
+    color: var(--folly);
+  }
+  
+  .footer {
+    background-color: var(--battleship-gray);
+    padding: 10px;
+    text-align: center;
+    color: var(--prussian-blue);
+  }
+  

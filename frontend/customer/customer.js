@@ -1,22 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const openModalBtn = document.getElementById('openModalBtn');
-  // const openModalVariety = document.getElementById('openModalVariety');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const modalContainer = document.getElementById('modalContainer');
-  // const modalContainerVariety = document.getElementById('modalContainerVariety');
-  // Event listeners for opening the modal
-  openModalBtn.addEventListener('click', () => {
-    modalContainer.classList.remove('hidden');
-  });
+// document.addEventListener('DOMContentLoaded', () => {
+//   const openModalBtn = document.getElementById('openModalBtn');
+//   // const openModalVariety = document.getElementById('openModalVariety');
+//   const closeModalBtn = document.getElementById('closeModalBtn');
+//   const modalContainer = document.getElementById('modalContainer');
+//   // const modalContainerVariety = document.getElementById('modalContainerVariety');
+//   // Event listeners for opening the modal
+//   openModalBtn.addEventListener('click', () => {
+//     modalContainer.classList.remove('hidden');
+//   });
 
-  // openModalVariety.addEventListener('click', () => {
-  //   modalContainerVariety.classList.remove('hidden');
-  // });
+//   // openModalVariety.addEventListener('click', () => {
+//   //   modalContainerVariety.classList.remove('hidden');
+//   // });
 
-  openModalBtn.addEventListener('click', (event) => {
-    event.preventDefault(); // Prevents the default action of the link
-    modalContainer.classList.remove('hidden'); // Shows the modal
-  });
+//   openModalBtn.addEventListener('click', (event) => {
+//     event.preventDefault(); // Prevents the default action of the link
+//     modalContainer.classList.remove('hidden'); // Shows the modal
+//   });
 
   // openModalVariety.addEventListener('click', (event) => {
   //   event.preventDefault(); // Prevents the default action of the link
@@ -24,20 +24,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // });
 
   // Event listener for closing the modal
-  closeModalBtn.addEventListener('click', () => {
-    modalContainer.classList.add('hidden');
-  });
+  // closeModalBtn.addEventListener('click', () => {
+  //   modalContainer.classList.add('hidden');
+  // });
   // closeModalBtn.addEventListener('click', () => {
   //   modalContainerVariety.classList.add('hidden');
   // });
 
   // Improved window click event listener
-  window.addEventListener('click', (event) => {
-    // Check if the clicked element is the modal container or a child of the modal container
-    if (event.target === modalContainer || modalContainer.contains(event.target)) {
-      modalContainer.classList.add('hidden');
-    }
-  });
+  // window.addEventListener('click', (event) => {
+  //   // Check if the clicked element is the modal container or a child of the modal container
+  //   if (event.target === modalContainer || modalContainer.contains(event.target)) {
+  //     modalContainer.classList.add('hidden');
+  //   }
+  // });
 
   // window.addEventListener('click', (event) => {
   //   // Check if the clicked element is the modal container or a child of the modal container
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //   }
   // });
 
-});
+// });
 
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('searchQuery');
@@ -118,9 +118,9 @@ document.addEventListener('DOMContentLoaded', function () {
             <img src="path/to/image.jpg" alt="${data.dishName}">
             <h2>${data.dishName}</h2>
             <p>${data.dishDescription}</p>
-            <p>Category: ${data.dishCategory}</p>
+            <p>Category: ${data.dishCategory}</p> 
             <p>Restaurant: ${data.restaurant}</p>
-            <p>Price: ${data.dishPrice*1.2}</p>
+            <p class= restaurant>Price: ${data.dishPrice*1.2}</p>
           </div>`;
           detailContainer.innerHTML = detailHtml;
         } else {
@@ -279,6 +279,8 @@ document.addEventListener('DOMContentLoaded', function () {
 //   }
 // });
 
+
+
 const recognition = new window.webkitSpeechRecognition();
 const startButton = document.querySelector("#start");
 const stopButton = document.querySelector("#stop");
@@ -287,7 +289,7 @@ startButton.addEventListener("click", (event) => {
   if (startButton.classList.contains("show")) {
     startButton.classList.add("hide");
     startButton.classList.remove("show");
-    stopButton.classList.remove("hide");
+    stopButton.classList.remove("hide"); 
     stopButton.classList.add("show");
     startRecording();
   }
@@ -336,7 +338,7 @@ saidText = '';
 
 
 // fetchDishes();
-const modal = document.getElementById("dishModal");
+//const modal = document.getElementById("dishModal");
 const dishList = document.getElementById('dish-list');
 let allDishes = []; // Store all fetched dishes
 
@@ -385,7 +387,7 @@ function displayDishes(dishes, category) {
 
     const image = document.createElement('img');
     image.classList.add('dish-image');
-    image.src = dish.image;
+    image.src = dish.imageUrl;
 
     const name = document.createElement('p');
     name.textContent = dish.dishName;
@@ -393,7 +395,7 @@ function displayDishes(dishes, category) {
     const description = document.createElement('p');
     description.textContent = dish.dishDescription;
    
-    const price = document.createElement('p');
+    const price = document.createElement('p'); 
     price.textContent = `Kes.${dish.dishPrice * 1.2}`;
 
     const button = document.createElement('button');
@@ -424,3 +426,59 @@ window.onclick = function (event) {
 
 fetchDishes();
 
+
+// var slideIndex = 0;
+// showSlides();
+
+// function showSlides() {
+//   var i;
+//   var slides = document.getElementsByClassName("mySlides");
+//   for (i = 0; i < slides.length; i++) {
+//     slides[i].style.display = "none";  
+//   }
+//   slideIndex++;
+//   if (slideIndex > slides.length) {slideIndex = 1}    
+//   slides[slideIndex-1].style.display = "block";  
+//   setTimeout(showSlides, 3000); // Change image every 3 seconds
+// }
+// slides[i].classList.remove("slide-in");
+//   }
+var slideIndex = 0;
+showSlides();
+
+// function showSlides() {
+//   var i;
+//   var slides = document.getElementsByClassName("mySlides");
+//   for (i = 0; i < slides.length; i++) {
+//     slides[i].style.display = "none";  
+//     slides[i].classList.remove("slide-in");
+//   }
+//   slideIndex++;
+//   if (slideIndex > slides.length) {slideIndex = 1}    
+//   slides[slideIndex-1].style.display = "block";  
+//   slides[slideIndex-1].classList.add("slide-in");
+//   setTimeout(showSlides, 5000); // Change image every 5 seconds (increase the interval)
+// }
+// var slideIndex = 0;
+// showSlides();
+
+function showSlides() {
+  var i;
+  var slides = document.getElementsByClassName("mySlides");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+    slides[i].classList.remove("slide-in", "slide-out");
+  }
+  
+  if (slideIndex > 0) {
+    slides[slideIndex - 1].classList.add("slide-out");
+  }
+
+  slideIndex++;
+  if (slideIndex > slides.length) { slideIndex = 1 }
+  
+  slides[slideIndex - 1].style.display = "block";
+  slides[slideIndex - 1].classList.add("slide-in");
+  
+  setTimeout(showSlides, 5000); // Change image every 5 seconds
+}

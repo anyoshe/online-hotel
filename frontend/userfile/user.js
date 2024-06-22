@@ -1,49 +1,61 @@
 //adding a new dish to database
+
 document.getElementById('openModalBtn').addEventListener('click', function () {
     document.getElementById('modalContainer').classList.remove('hidden');
 });
 
-document.getElementById('addDishForm').addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent the form from submitting normally
-
-
-    document.getElementById('submitButton').addEventListener('click', async (event) => {
-        event.preventDefault(); // Prevent default button click behavior
-
-        // Gather dish data from the form
-        const dishData = {
-            dishCode: document.getElementById('dishCode').value,
-            dishName: document.getElementById('dishName').value,
-            Quantity: document.getElementById('quantity').value,
-            dishPrice: document.getElementById('dishPrice').value,
-            dishCategory: document.getElementById('dishCategory').value,
-            restaurant: document.getElementById('restaurant').value,
-            dishDescription: document.getElementById('dishDescription').value
-        };
-
-        try {
-            // Send a POST request to add the dish
-            const response = await fetch('http://localhost:3000/api/dishes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dishData)
-            });
-
-            const data = await response.json();
-            alert(data.message) // Display success message
-            document.getElementById('addDishForm').reset();
-        } catch (error) {
-            console.error(error);
-            alert('Failed to add dish'); // Display error message
-        }
-        document.getElementById('modalContainer').classList.add('hidden');
-    });
-
-});
+// Event listener to close the modal
 document.getElementById('closeModalBtn').addEventListener('click', function () {
     document.getElementById('modalContainer').classList.add('hidden');
+});
+
+// Event listener for form submission
+document.getElementById('addDishForm').addEventListener('submit', async function (event) {
+    event.preventDefault(); // Prevent the form from submitting normally
+
+    const formData = new FormData();
+    const imageInput = document.getElementById('imageInput').files[0]; // Assuming your input element for the image has id 'imageInput'
+
+    formData.append('image', imageInput);
+    formData.append('dishCode', document.getElementById('dishCode').value);
+    formData.append('dishName', document.getElementById('dishName').value);
+    formData.append('quantity', document.getElementById('quantity').value);
+    formData.append('dishPrice', document.getElementById('dishPrice').value);
+    formData.append('dishCategory', document.getElementById('dishCategory').value);
+    formData.append('restaurant', document.getElementById('restaurant').value);
+    formData.append('dishDescription', document.getElementById('dishDescription').value);
+
+    try {
+        // Send a POST request to add the dish
+        console.log('Sending request to:', 'http://localhost:3000/api/dishes');
+        const response = await fetch('http://localhost:3000/api/dishes', {
+            method: 'POST',
+            body: formData
+        });
+
+        // Log the response status and status text for debugging purposes
+        console.log('Response status:', response.status);
+        console.log('Response statusText:', response.statusText);
+
+        // Check response status before parsing the body
+        if (!response.ok) {
+            const errorText = await response.text(); // Use .text() to get the raw response text
+            console.error('HTTP Error response text:', errorText);
+            throw new Error(`HTTP Error: ${errorText}`);
+        }
+
+        // Parse the JSON response
+        const data = await response.json();
+        console.log('Success response data:', data); // Log the successful response
+        alert('Dish added successfully!');
+        document.getElementById('addDishForm').reset();
+
+    } catch (error) {   
+        console.error('Fetch error:', error);
+        alert('Failed to add dish: ' + error.message); // Display specific error message
+    } finally {
+        document.getElementById('modalContainer').classList.add('hidden');
+    }
 });
 
 //updating an existing dish in the database
@@ -66,15 +78,29 @@ document.getElementById('updateDishForm').addEventListener('submit', async (even
         if (!response.ok) {
             throw new Error(data.message || 'Failed to fetch dish details');
         }
+        console.log("Fetched dish details:", data);
 
         // Populate form fields with fetched dish details
         document.getElementById('updateDishName').value = data.dishName || '';
         document.getElementById('updateDishPrice').value = data.dishPrice || '';
-        document.getElementById('updateQuantity').value = data.Quantity || '';
+        document.getElementById('updateQuantity').value = data.quantity || ''; // Corrected 'Quantity' to 'quantity'
         document.getElementById('updateDishCategory').value = data.dishCategory || '';
         document.getElementById('updateRestaurant').value = data.restaurant || '';
         document.getElementById('updateDishDescription').value = data.dishDescription || '';
-
+        // Populate the image field if an image URL is available
+        if (data.imageUrl) {
+            const imgElement = document.createElement('img');
+            imgElement.src = data.imageUrl;
+            imgElement.style.display = 'none'; // Hide the image element
+            document.getElementById('updateImagePreview').appendChild(imgElement); // Assuming you have an element with id 'updateImagePreview' to display the image preview
+        }
+       
+        // Create FormData from the form
+        // const formData = new FormData(form); 
+         const fileInput = document.getElementById('image');
+        if (fileInput.files.length > 0) {
+            formData.append('image', fileInput.files[0]);
+        }
         // Send PUT request to update the dish
         const putResponse = await fetch(`http://localhost:3000/api/dishes/${dishCode}`, {
             method: 'PUT',
@@ -83,20 +109,21 @@ document.getElementById('updateDishForm').addEventListener('submit', async (even
             },
             body: JSON.stringify(Object.fromEntries(formData.entries()))
         });
-
         const putData = await putResponse.json();
-        if (!putResponse.ok) {
+        if (!putResponse.ok) { 
             throw new Error(putData.message || 'Failed to update dish');
         }
+       
 
         alert(putData.message); // Display success message
         form.reset(); // Clear the form fields
     } catch (error) {
         console.error(error);
         alert(error.message || 'An error occurred'); // Display error message
-    }
+    } 
     document.getElementById('updateModalContainer').classList.add('hidden');
 });
+
 document.getElementById('closeUpdateModalBtn').addEventListener('click', function () {
     document.getElementById('updateModalContainer').classList.add('hidden');
 });

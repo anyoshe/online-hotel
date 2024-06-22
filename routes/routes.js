@@ -1,15 +1,20 @@
 const express = require("express")
-
 const router = express.Router();
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const { connect, connection, model, Types } = mongoose;
 const { body, validationResult } = require('express-validator');
 const shortid = require('shortid');
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const upload = require('../config/multer');
+const path = require('path');
+const axios = require('axios');
+require('dotenv').config();
+
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
@@ -18,15 +23,59 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', function(next) {
-    if (!this.isModified('password')) return next();
-    bcrypt.hash(this.password, 10, (err, hash) => {
-        if (err) return next(err);
-        this.password = hash;
+    if (this.isModified('password') || typeof this.password === 'undefined') {
+        bcrypt.hash(this.password, 10, (err, hash) => {
+            if (err) return next(err);
+            console.log('Hashed password:', hash);
+            this.password = hash;
+            next();
+        });
+    } else {
         next();
-    });
+    }
 });
 
-const User = model('User', UserSchema);
+const User = model('User', UserSchema);  
+
+// Passport Config
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+    User.findOne({ email }, async (err, user) => {
+        if (err) {
+            console.log('Error finding user:', err);
+            return done(err);
+        }
+        if (!user) {
+            console.log('Incorrect email.');
+            return done(null, false, { message: 'Incorrect email.' });
+        }
+        console.log('Received password:', password);
+        console.log('Stored hashed password:', user.password); 
+
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) {
+                console.log('Error during password comparison:', err);
+                return done(err);
+            }
+            console.log('Password match result:', isMatch); // Log the result of the comparison
+
+            if (!isMatch) {
+                console.log('Incorrect password.');
+                return done(null, false, { message: 'Incorrect password.' });
+            }
+            return done(null, user);
+        });
+    });
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    });
+});
 
 
 // Dish Models
@@ -118,7 +167,7 @@ router.post('/auth/signup', async (req, res) => {
     if (existingUser) {
         return res.status(400).json({ success: false, message: 'Email already registered' });
       }
-  //create new user
+
   // Create new user
   const newUser = new User({ email, password });
 
@@ -146,66 +195,83 @@ router.post('/auth/signup', async (req, res) => {
 });
 
 
-router.post('/auth/login', passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: false
-}));
+router.post('/auth/login', async (req, res, next) => {
+    passport.authenticate('local', async (err, user, info) => {
+        if (err ||!user) {
+            return res.status(400).json({ success: false, message: info? info.message : 'Authentication failed' });
+        }
+        req.login(user, { session: false }, (err) => {
+            if (err) {
+                return res.status(500).json({ success: false, message: 'Session error' });
+            }
+            return res.status(200).json({ success: true, message: 'Logged in successfully' });
+        });
+    })(req, res, next);
+});
 
-//adding a new dish
-router.post('/dishes', async (req, res) => {
-    try {
-        const dish = new Dish(req.body);
-        await dish.save();
-        res.status(201).json({ message: 'Dish added successfully', dish });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to add dish', message: error.message });
-    }
+
+//add dish to database
+router.post('/dishes', (req, res) => {
+    console.log('Received request to add dish:', req.body); 
+    upload(req, res, async (err) => {
+        if (err) {
+            console.error('Error uploading image:', err);
+            return res.status(500).json({ message: 'Error uploading image', error: err });
+        }
+
+        try {
+            const { dishCode, dishName, quantity, dishPrice, dishCategory, restaurant, dishDescription } = req.body;
+            const imageUrl = req.file ? `/uploads/images/${req.file.filename}` : '';
+
+            const newDish = new Dish({
+                dishCode,
+                dishName,
+                quantity,
+                dishPrice,
+                dishCategory,
+                restaurant,
+                dishDescription,
+                imageUrl,
+            });
+
+            await newDish.save();
+            res.status(201).json(newDish);
+        } catch (error) {
+            console.error('Error creating dish:', error);
+            res.status(500).json({ message: 'Error creating dish', error });
+        }
+    });
 });
 
 // Route to update dish details
-router.put('/dishes/:dishCode', [
-    // Validate request body
-    body('dishName').optional().isString(),
-    body('dishPrice').optional().isNumeric(),
-    body('Quantity').optional().isNumeric(),
-    body('dishCategory').optional().isString(),
-    body('restaurant').optional().isString(),
-    body('dishDescription').optional().isString()
-], async (req, res) => {
+
+router.put('/dishes/:dishCode', async (req, res) => {
+    console.log(req.body); // Log the request body to see what's received
     try {
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+        // Extract text fields from the request body
+        const { dishName, dishPrice, quantity, dishCategory, restaurant, dishDescription } = req.body;
 
-        const dishCode = req.params.dishCode;
+        // Extract the file(s)
+        const files = req.files; // Array of `file` objects, if any were uploaded
+
+        // Construct the updatedFields object
         const updatedFields = {};
+        if (dishName) updatedFields.dishName = dishName;
+        if (dishPrice) updatedFields.dishPrice = dishPrice;
+        if (quantity) updatedFields.quantity = quantity;
+        if (dishCategory) updatedFields.dishCategory = dishCategory;
+        if (restaurant) updatedFields.restaurant = restaurant;
+        if (dishDescription) updatedFields.dishDescription = dishDescription;
 
-        // Check which fields are provided in the request and update accordingly
-        if (req.body.dishName) {
-            updatedFields.dishName = req.body.dishName;
-        }
-        if (req.body.dishPrice) {
-            updatedFields.dishPrice = req.body.dishPrice;
-        }
-        if (req.body.Quantity) {
-            updatedFields.Quantity = req.body.Quantity;
-        }
-        if (req.body.dishCategory) {
-            updatedFields.dishCategory = req.body.dishCategory;
-        }
-        if (req.body.restaurant) {
-            updatedFields.restaurant = req.body.restaurant;
-        }
-        if (req.body.dishDescription) {
-            updatedFields.dishDescription = req.body.dishDescription;
+        // Handle the file(s) if any were uploaded
+        if (files && files.length > 0) {
+            // Example: Set the first uploaded file's URL
+            // Note: You might need to adjust this logic based on your requirements
+            updatedFields.imageUrl = `/uploads/images/${files[0].filename}`;
         }
 
         // Update the dish in the database
-        const updatedDish = await Dish.findOneAndUpdate({ dishCode: dishCode }, updatedFields, { new: true });
+        const updatedDish = await Dish.findOneAndUpdate({ dishCode: req.params.dishCode }, updatedFields, { new: true });
 
         if (!updatedDish) {
             return res.status(404).json({ error: 'Dish not found' });
@@ -217,6 +283,8 @@ router.put('/dishes/:dishCode', [
         res.status(500).json({ error: 'Failed to update dish', message: error.message });
     }
 });
+
+
 
 // Route to delete a dish by dish code or dish name
 router.delete('/dishes/:identifier', async (req, res) => {
@@ -452,6 +520,17 @@ router.post('/orders', async (req, res) => {
     }
 });
 
+// Endpoint to save order
+router.post('/save-order', async (req, res) => {
+    const orderDetails = req.body;
+    try {
+      await saveOrder(orderDetails);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to save order' });
+    }
+  });
+
 // Route to retrieve all orders
 router.get('/orders', async (req, res) => {
     try {
@@ -678,4 +757,194 @@ router.get('/categories/suggestions', async (req, res) => {
 //       res.status(500).json({ error: 'Internal Server Error' });
 //     }
 //   }); 
-module.exports = router; 
+
+// PAYMENTS CONTROLS ROUTES
+const consumerKey = process.env.CONSUMER_KEY;
+const consumerSecret = process.env.CONSUMER_SECRET;
+const shortcode = process.env.SHORTCODE;
+const passkey = process.env.PASSKEY;
+const ngrokUrl = process.env.NGROK_URL;
+
+router.post('/mpesa/callback', (req, res) => {
+    const callbackData = req.body;
+    console.log('M-Pesa Callback Received:', callbackData);
+    
+    // Your logic to handle the callback data goes here...
+  // Extract relevant information from the callback data
+  const { Body, ResultCode, ResultDesc } = callbackData;
+
+  // Log the callback data for debugging or auditing
+  console.log('Callback Body:', Body);
+  console.log('Result Code:', ResultCode);
+  console.log('Result Description:', ResultDesc);
+
+  // Example: Process the callback based on ResultCode
+  if (ResultCode === 0) {
+    // Successful transaction
+    // Update your database, notify user, etc.
+    console.log('Payment successful. Update database...');
+  } else {
+    // Failed transaction
+    // Handle failure scenario
+    console.log('Payment failed:', ResultDesc);
+  }
+    // Respond with a success status to acknowledge receipt
+    res.sendStatus(200);
+  });
+  
+// Route to get M-Pesa access token
+router.get('/token', async (req, res) => {
+  const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+  try {
+    const response = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+      headers: {
+        'Authorization': `Basic ${auth}`
+      }
+    });
+
+    console.log('Access Token Response:', response.data);
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching access token:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Failed to fetch access token', details: error.message });
+  }
+});
+
+// Route to handle M-Pesa payment
+const generateTimestamp = () => { 
+    const date = new Date();
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+  };
+  
+router.post('/mpesa/pay', async (req, res) => {
+  const { phoneNumber, amount } = req.body;
+
+  try {
+    const timestamp = generateTimestamp();
+    
+    // Fetch access token
+    const authResponse = await axios.get('https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials', {
+      headers: {
+        'Authorization': `Basic ${Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64')}`
+      }
+    });
+
+    if (!authResponse.data.access_token) {
+      throw new Error('Failed to fetch access token');
+    }
+
+    const { access_token } = authResponse.data;
+
+    // Initiate payment
+    //const timestamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14);
+    const password = Buffer.from(`${shortcode}${passkey}${timestamp}`).toString('base64');
+    
+
+    console.log('Access Token:', access_token);
+    console.log('Timestamp:', timestamp);
+    console.log('Password:', password);
+
+    const paymentData = {
+      BusinessShortCode: shortcode,
+      Password: password,
+      Timestamp: timestamp,
+      TransactionType: 'CustomerPayBillOnline',
+      Amount: amount,
+      PartyA: phoneNumber,
+      PartyB: shortcode,
+      PhoneNumber: phoneNumber,
+      CallBackURL: `${ngrokUrl}/mpesa/callback`,
+      AccountReference: 'Test123',
+      TransactionDesc: 'Test Payment'
+    };
+
+    console.log('Payment Data:', paymentData);
+
+    const paymentResponse = await axios.post('https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest', paymentData, {
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Payment Response:', paymentResponse.data);
+    res.json(paymentResponse.data);
+  } catch (error) {
+    console.error('Error initiating M-Pesa payment:', error.response ? error.response.data : error.message);
+    res.status(500).json({ error: 'Failed to initiate payment', details: error.message });
+  }
+});
+// Example route to handle sending receipts
+router.post('/send-receipt', async (req, res) => {
+    try {
+      // Implement logic to send receipt here
+      const { phoneNumber, amount } = req.body;
+  
+      // Example logic to send receipt via SMS or any other method
+      const receiptSent = await sendReceiptMessage(phoneNumber, amount);
+  
+      // Respond with success message
+      res.status(200).json({ message: 'Receipt sent successfully' });
+    } catch (error) {
+      console.error('Error sending receipt:', error);
+      res.status(500).json({ error: 'Failed to send receipt' });
+    }
+  });
+  
+// Function to send receipt
+async function sendReceipt(phoneNumber, amount) {
+    const message = `Thank you for your payment of KES ${amount}. Your order is being processed.`;
+    // Logic to send SMS (you can use a service like Twilio or any other SMS gateway)
+    await axios.post('https://sms-gateway-api/send', {
+      to: phoneNumber,
+      message: message
+    });
+  }
+  // Route to handle saving orders
+router.post('/paidOrder', async (req, res) => {
+    try {
+      const orderDetails = req.body;
+  
+
+    // Ensure unique order ID
+    orderDetails.orderId = uuidv4();
+
+      // Save order to database
+      await saveOrder(orderDetails);
+  
+      res.status(200).json({ message: 'Order saved successfully' });
+    } catch (error) {
+      console.error('Error saving order:', error);
+      res.status(500).json({ error: 'Failed to save order' });
+    }
+  });
+  
+  // Function to save order details in the database
+  async function saveOrder(orderDetails) { 
+    const order = new Order({
+      orderId: orderDetails.orderId,
+      customerName: orderDetails.customerName,
+      phoneNumber: orderDetails.phoneNumber,
+      selectedCategory: orderDetails.selectedCategory,
+      selectedRestaurant: orderDetails.selectedRestaurant,
+      customerLocation: orderDetails.customerLocation,
+      expectedDeliveryTime: orderDetails.expectedDeliveryTime, 
+      dishes: orderDetails.dishes,
+      totalPrice: orderDetails.totalPrice, 
+      delivered: false,
+      paid: true // Assuming the payment was successful
+    });
+  
+    await order.save();
+  }
+
+
+module.exports = router;  

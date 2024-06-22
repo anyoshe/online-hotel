@@ -11,11 +11,18 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
 const session = require('express-session');
-
- 
+const path = require('path');
 const mongoString = process.env.DATABASE_URL;
  mongoose.connect(mongoString);
 const database = mongoose.connection
+
+
+//M-Pesa credentials
+const consumerKey = 'qQwrKakcvG7xbcsm3ml5RYaxCrpAZADQxepMd2XdaGF7qtAi';
+const consumerSecret = 'UablzGVv3McnA6YIve1SdyGGelzAfVcqEXAVknvPa4JPyVYhIZCf7ClBXd4PURXz';
+const shortcode = '174379';
+const passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0d8bf5a7b3e5e92e4773cfcc102ecb';
+
 
 const app = express(); 
 
@@ -31,32 +38,14 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cors()); 
 app.use('/api', routes);
-
-// Passport Config
-passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, password, done) => {
-    try {
-    const user = await User.findOne({ email });
-     if (!user) return done(null, false, { message: 'Incorrect email.' });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return done(null, false, { message: 'Incorrect password.' }); 
-
-    return done(null, user);
-} catch (err) {
-    return done(err);
-}
-}));
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-        done(err, user);
-    });
-});
-
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// CORS headers for local development
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    next();
+  });
 
 app.listen(3000, () => {
     console.log(`Server Started at ${3000}`) 

@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="user.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <title>User Landing Page</title>
 </head>
 
@@ -35,26 +39,23 @@
                         <form action="" class="addDishForm" id="addDishForm">
                             <h4>Add New Dish!</h4>
                             <label for="dishCode" class="dishCode">Dish Code :</label>
-                            <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input"
-                                required>
+                            <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input" required>
                             <label for="dishName" class="dishName">Dish name :</label>
-                            <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input"
-                                required>
+                            <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input" required>
                             <label for="quantity" class="quantity">Quantity :</label>
-                            <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input"
-                                required> 
+                            <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input" required>
                             <label for="dishPrice" class="label">Dish Price :</label>
-                            <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice"
-                                class="input" required>
+                            <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice" class="input" required>
                             <label for="dishCategory" class="label">Dish Category :</label>
-                            <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory"
-                                class="input" required>
+                            <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory" class="input" required>
                             <label for="restaurant" class="label">Restaurant :</label>
-                            <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant" class="input"
-                                required>
+                            <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant" class="input" required>
                             <label for="dishDescription" class="label">Dish Description :</label>
-                            <input type="text" name="dishDescription" placeholder="Description Of Dish"
-                                id="dishDescription" class="input" required>
+                            <input type="text" name="dishDescription" placeholder="Description Of Dish" id="dishDescription" class="input"
+                                required>
+                        
+                            <label for="image" class="label">Dish Image :</label>
+                            <input type="file" name="image" id="imageInput" class="input" required>
                             <button id="submitButton" class="addButton">Add Dish</button>
                         </form>
                     </div>
@@ -71,23 +72,27 @@
                             <h4>Update Your Dishes!</h4>
                             <label for="dishCode">Dish Code: </label>
                             <input type="text" id="dishCode" name="dishCode" class="input" required>
-
+                        
                             <label for="dishName">New Dish Name: </label>
                             <input type="text" id="updateDishName" name="dishName" class="input">
-
+                        
                             <label for="dishPrice">New Dish Price: </label>
                             <input type="number" id="updateDishPrice" name="dishPrice" class="input">
-
+                        
                             <label for="quantity">New Quantity: </label>
                             <input type="number" id="updateQuantity" name="quantity" class="input">
-
+                        
                             <label for="dishCategory" class="label">New Dish Category :</label>
                             <input type="text" name="dishCategory" id="updateDishCategory" class="input">
                             <label for="restaurant" class="label">New Restaurant :</label>
                             <input type="text" name="restaurant" id="updateRestaurant" class="input">
-
+                        
                             <label for="dishDescription">New Dish Description: </label>
                             <input type="text" id="updateDishDescription" name="dishDescription" class="input">
+                        
+                            <label for="image" class="label">Dish Image :</label>
+                            <input type="file" name="image" id="image" class="input">
+                            <div id="updateImagePreview"></div>
 
                             <button type="submit" class="updateDish" id="submitButton">Update Dish</button>
                         </form>
