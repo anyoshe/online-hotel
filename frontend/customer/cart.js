@@ -1,5 +1,7 @@
+document.addEventListener('DOMContentLoaded', function() {
+  clearCart();
+});
 //generating the customerLocation
-
 const script = document.createElement("script");
 script.src =
   "https://maps.googleapis.com/maps/api/js?key=AIzaSyCmuVWpm0lkdNiq3wWZpEz0XYtDjmoN-wY&callback=initMap&libraries=places&loading=async"; // Replace 'YOUR_API_KEY' with your actual Google Maps API key
@@ -197,7 +199,7 @@ function addToCart(dishDetails) {
     return;
   }
 
-  const { dishName, dishPrice, dishCategory, restaurant } = dishDetails;
+  const { dishCode, dishName, dishPrice, dishCategory, restaurant } = dishDetails;
   const price = dishPrice * 1.2; // 20% markup
   const quantity = 1; // Always 1 for now
 
@@ -241,12 +243,12 @@ function addToCart(dishDetails) {
 
   // Update localStorage after adding to cart
   const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existingItem = storedCart.find(item => item.dishName === dishName);
+  const existingItem = storedCart.find(item => item.dishCode === dishCode);
 
   if (existingItem) {
     existingItem.quantity++;
   } else {
-    storedCart.push({ dishName, dishPrice, dishCategory, restaurant, quantity });
+    storedCart.push({ dishCode, dishName, dishPrice, dishCategory, restaurant, quantity });
   }
 
   localStorage.setItem('cart', JSON.stringify(storedCart));
@@ -319,6 +321,10 @@ function getFirstDishRestaurant() {
 function checkAuthenticationStatus() {
   return false; // Placeholder, replace with actual authentication check
 }
+function closeOrderFormModal() {
+  const modal = document.getElementById("orderFormModal");
+  modal.style.display = "none";
+}
 
 function placeOrder() {
   console.log('Function placeOrder called');
@@ -349,43 +355,45 @@ function placeOrder() {
 
 function showOrderSummaryModal(cartItems) {
   console.log("Retrieved cart items:", cartItems);
-  const orderSummaryTable = document.getElementById('orderSummaryTable');
-  orderSummaryTable.innerHTML = '';
+  const orderSummaryList = document.getElementById('orderSummaryList');
+  const totalPriceContainer = document.getElementById('totalPriceContainer');
+  orderSummaryList.innerHTML = '';
+  totalPriceContainer.innerHTML = '';
 
   if (!cartItems || !cartItems.length) {
-    console.warn('Cart items are empty or undefined.');
-    return;
+      console.warn('Cart items are empty or undefined.');
+      return;
   }
 
   cartItems.forEach(item => {
-    const row = document.createElement('tr');
-    const subtotal = (item.dishPrice * 1.2) * item.quantity;
-    row.innerHTML = `
-      <td>${item.dishName}</td>
-      <td>${item.quantity}</td> x
-      <td>${(item.dishPrice * 1.2).toFixed(2)}</td> = Kes.
-      <td>Kes.${subtotal.toFixed(2)}</td>
-      <td><button class="decrease-qty">-</button></td>
-      <td><button class="increase-qty">+</button></td>
-      <td><button class="delete-dish">Delete</button></td>
-    `;
-    orderSummaryTable.appendChild(row);
+      const listItem = document.createElement('div');
+      listItem.classList.add('order-summary-item');
 
-    row.querySelector('.decrease-qty').addEventListener('click', () => decreaseQty(item));
-    row.querySelector('.increase-qty').addEventListener('click', () => increaseQty(item));
-    row.querySelector('.delete-dish').addEventListener('click', () => deleteDish(item));
+      const subtotal = (item.dishPrice * 1.2) * item.quantity;
+      listItem.innerHTML = `
+          <div class="item-details">
+              <span>${item.dishName} - Kes.${(item.dishPrice * 1.2).toFixed(2)} @each x ${item.quantity}</span>
+              <span>Kes.${subtotal.toFixed(2)}</span>
+          </div>
+          <div class="item-actions">
+              <button class="btn btn-sm btn-outline-secondary decrease-qty">-</button>
+              <span class="quantity">${item.quantity}</span>
+              <button class="btn btn-sm btn-outline-secondary increase-qty">+</button>
+              <button class="btn btn-sm btn-outline-danger delete-dish">Delete</button>
+          </div>
+      `;
+      orderSummaryList.appendChild(listItem);
+
+      listItem.querySelector('.decrease-qty').addEventListener('click', () => decreaseQty(item));
+      listItem.querySelector('.increase-qty').addEventListener('click', () => increaseQty(item));
+      listItem.querySelector('.delete-dish').addEventListener('click', () => deleteDish(item));
   });
-   // Calculate the total price
-   const totalPrice = cartItems.reduce((acc, item) => acc + ((item.dishPrice * 1.2) * item.quantity), 0);
 
-   // Add a row for the total price
-   const totalRow = document.createElement('tr');
-   totalRow.innerHTML = `
-     <td colspan="3">Total Price</td>
-     <td>Kes.${totalPrice.toFixed(2)}</td>
-   `;
-   orderSummaryTable.appendChild(totalRow);
- 
+  // Calculate the total price
+  const totalPrice = cartItems.reduce((acc, item) => acc + ((item.dishPrice * 1.2) * item.quantity), 0);
+
+  // Display the total price
+  totalPriceContainer.innerHTML = `Total Price: Kes.${totalPrice.toFixed(2)}`;
 
   $('#orderSummaryModal').modal('show');
 }
@@ -401,7 +409,7 @@ function confirmOrder() {
     }
   
   showPaymentSummary();
-  clearCart();
+  //clearCart();
   closeOrderSummaryModal();
   updateUI();
 }
@@ -413,91 +421,101 @@ function closeOrderSummaryModal() {
 
 function decreaseQty(item) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const index = cart.findIndex(cartItem => cartItem.dishName === item.dishName);
+  const index = cart.findIndex(cartItem => cartItem.dishCode === item.dishCode);
 
   if (index !== -1 && cart[index].quantity > 1) {
-    cart[index].quantity--;
-    localStorage.setItem('cart', JSON.stringify(cart));
+      cart[index].quantity--;
+      localStorage.setItem('cart', JSON.stringify(cart));
   } else if (index !== -1) {
-    cart.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(cart));
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
   }
   updateUI();
 }
 
 function increaseQty(item) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const index = cart.findIndex(cartItem => cartItem.dishName === item.dishName);
+  const index = cart.findIndex(cartItem => cartItem.dishCode === item.dishCode);
 
   if (index !== -1) {
-    cart[index].quantity++;
-    localStorage.setItem('cart', JSON.stringify(cart));
+      cart[index].quantity++;
+      localStorage.setItem('cart', JSON.stringify(cart));
   }
   updateUI();
 }
 
 function deleteDish(item) {
   const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const index = cart.findIndex(cartItem => cartItem.dishName === item.dishName);
+  const index = cart.findIndex(cartItem => cartItem.dishCode === item.dishCode);
 
   if (index !== -1) {
-    cart.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(cart));
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
   }
   updateUI();
 }
 
 function updateUI() {
-  
   console.log('updateUI called');
-  const orderSummaryTable = document.getElementById('orderSummaryTable');
-  if (!orderSummaryTable) {
-    console.error('Element #orderSummaryTable not found.');
-    return;
+  const orderSummaryList = document.getElementById('orderSummaryList');
+  const totalPriceContainer = document.getElementById('totalPriceContainer');
+  if (!orderSummaryList) {
+      console.error('Element #orderSummaryList not found.');
+      return;
   }
   const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
 
-  
-  orderSummaryTable.innerHTML = '';
+  orderSummaryList.innerHTML = '';
   if (cartItems.length === 0) {
-    console.log('No items in the cart');
-  } else {
-    console.log('Updating UI with cart items:', cartItems);
+    totalPriceContainer.innerHTML = 'Total Price: Kes.0.00';
+    return;
   }
+      console.log('No items in the cart');
+  // } else {
+  //     console.log('Updating UI with cart items:', cartItems);
+  // }
 
-    cartItems.forEach(item => {
-      const row = document.createElement('tr');
+  cartItems.forEach(item => {
+      const listItem = document.createElement('div');
+      listItem.classList.add('order-summary-item');
+
       const subtotal = (item.dishPrice * 1.2) * item.quantity;
-      row.innerHTML = `
-        <td>${item.dishName}</td>
-        <td>${item.quantity}</td> x
-        <td>${(item.dishPrice * 1.2).toFixed(2)}</td> = Kes.
-      <td>Kes.${subtotal.toFixed(2)}</td>
-        <td><button class="decrease-qty">-</button></td>
-        <td><button class="increase-qty">+</button></td>
-        <td><button class="delete-dish">Delete</button></td>
+      listItem.innerHTML = `
+          <div class="item-details">
+              <span class="item-info">${item.dishName} - Kes.${(item.dishPrice * 1.2).toFixed(2)} @each x <span class="item-quantity">${item.quantity}</span></span>
+              <span class="item-subtotal">Kes.${subtotal.toFixed(2)}</span>
+          </div>
+          <div class="item-actions">
+              <button class="btn btn-sm btn-outline-secondary decrease-qty">-</button>
+              <span class="quantity">${item.quantity}</span>
+              <button class="btn btn-sm btn-outline-secondary increase-qty">+</button>
+              <button class="btn btn-sm btn-outline-danger delete-dish">Delete</button>
+          </div>
       `;
-      orderSummaryTable.appendChild(row);
+      orderSummaryList.appendChild(listItem);
 
-      row.querySelector('.decrease-qty').addEventListener('click', () => decreaseQty(item));
-      row.querySelector('.increase-qty').addEventListener('click', () => increaseQty(item));
-      row.querySelector('.delete-dish').addEventListener('click', () => deleteDish(item));
-    });
-     // Calculate the total price
-  const totalPrice = cartItems.reduce((acc, item) => acc + ((item.dishPrice * 1.2) * item.quantity), 0);
+      listItem.querySelector('.decrease-qty').addEventListener('click', () => decreaseQty(item));
+      listItem.querySelector('.increase-qty').addEventListener('click', () => increaseQty(item));
+      listItem.querySelector('.delete-dish').addEventListener('click', () => deleteDish(item));
+  });
 
-  // Add a row for the total price
-  const totalRow = document.createElement('tr');
-  totalRow.innerHTML = `
-    <td colspan="3">Total Price</td>
-    <td>Kes.${totalPrice.toFixed(2)}</td>
-  `;
-  orderSummaryTable.appendChild(totalRow);
+  updateTotalPrice(cartItems);
 
-  // Show the modal
   $('#orderSummaryModal').modal('show');
 }
- 
+
+function updateTotalPrice(cartItems) {
+  const totalPrice = cartItems.reduce((acc, item) => acc + ((item.dishPrice * 1.2) * item.quantity), 0);
+  const totalPriceContainer = document.getElementById('totalPriceContainer');
+  totalPriceContainer.innerHTML = `Total Price: Kes.${totalPrice.toFixed(2)}`;    
+} 
+
+function showOrderSummaryModal(cartItems) {
+  localStorage.setItem('cart', JSON.stringify(cartItems));
+  updateUI();
+}
+
+
 function showPaymentSummary() {
   const customerName = document.getElementById("customerName").value.trim();
   const phoneNumber = document.getElementById("phoneNumber").value.trim();
@@ -533,11 +551,11 @@ function showPaymentSummary() {
         if (distance < 2) {
           deliveryCharges = 50;
         } else {
-          deliveryCharges = distance * 50;
+          deliveryCharges = Math.round(distance * 50);
         }
 
-        const totalPrice = cartItems.reduce((total, item) => total + item.quantity * item.dishPrice, 0);
-        const grandTotal = totalPrice + deliveryCharges;
+        const totalPrice = cartItems.reduce((total, item) => total + item.quantity * (item.dishPrice * 1.2), 0);
+        const grandTotal = Math.round(totalPrice + deliveryCharges);
 
         const paymentSummaryDetails = document.getElementById("paymentSummaryDetails");
         paymentSummaryDetails.innerHTML = `
@@ -549,18 +567,31 @@ function showPaymentSummary() {
           <ul class="list-group mb-3">
             ${cartItems.map(item => `
               <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${item.dishName} - ${item.quantity} x Kes.${item.dishPrice.toFixed(2)}
-                <span>Kes.${(item.quantity * item.dishPrice).toFixed(2)}</span>
+                ${item.dishName} - ${item.quantity} x Kes.${(item.dishPrice * 1.2).toFixed(2)}
+                <span>Kes.${(item.quantity * (item.dishPrice * 1.2)).toFixed(2)}</span>
               </li>
             `).join('')}
           </ul>
           <p class="text-end"><strong>Total Price:</strong> Kes.${totalPrice.toFixed(2)}</p>
           <p class="text-end"><strong>Delivery Charges (${distance.toFixed(2)} km):</strong> Kes.${deliveryCharges.toFixed(2)}</p>
-          <p class="text-end"><strong>Grand Total:</strong> Kes.${grandTotal.toFixed(2)}</p>
+          <p class="text-end"><strong>Grand Total:</strong> Kes.${grandTotal}</p>
         `;
 
         const paymentModal = new bootstrap.Modal(document.getElementById('paymentSummaryModal'));
         paymentModal.show();
+        // Update order details with delivery charges
+        const orderDetails = {
+          customerName: customerName,
+          phoneNumber: phoneNumber,
+          customerLocation: customerLocation,
+          expectedDeliveryTime: expectedDeliveryTime,
+          dishes: cartItems,
+          deliveryCharges: deliveryCharges,
+          totalPrice: grandTotal // Include grand total including delivery charges
+        };
+
+        // Store orderDetails in localStorage or pass to the next step
+        localStorage.setItem('orderDetails', JSON.stringify(orderDetails));
       } else {
         console.error("Geocode was not successful for the following reason: " + status);
         alert('Unable to get customer location.');
@@ -589,21 +620,16 @@ function openOptionsModal() {
 
 // Example event listener or function where you trigger the options modal
 document.getElementById('paymentOptionsModal').addEventListener('click', paymentOptionsModal);
+//calculate total price
+function calculateTotalPrice() {
+  const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+  let totalPrice = 0;
 
-function getCartItems() {
-  return JSON.parse(localStorage.getItem('cart')) || [];
-}
+  cartItems.forEach(item => {
+    totalPrice += (item.dishPrice * 1.2) * item.quantity;   
+  }); 
 
-function calculateTotalPrice(cartItems) {
-  return cartItems.reduce((acc, item) => acc + ((item.dishPrice * 1.2) * item.quantity), 0).toFixed(2);
-}
-function getCustomerDetails() {
-  return {
-    customerName: document.getElementById('customerName').value.trim(),
-    phoneNumber: document.getElementById('phoneNumber').value.trim(),
-    customerLocation: document.getElementById('customerLocation').value.trim(),
-    expectedDeliveryTime: document.getElementById('expectedDeliveryTime').value.trim()
-  };
+  return totalPrice;
 }
 
 // Function to handle payment process
@@ -617,72 +643,97 @@ async function processPayment(method) {
       break;
     case 'mpesa':
       console.log('Processing M-Pesa payment...');
-      // try {
-      //   const phoneNumber = prompt('Enter your M-Pesa phone number:');
-      //   const amount = prompt('Enter the amount to pay:');
-      //   const response = await initiateMpesaPayment(phoneNumber, amount);
-
-      //   if (response && response.ResponseCode === '0') {
-      //     // Display success message
-      //     alert('Payment successful! Your order will be processed.');
- 
-      //     // Close the modal and show thank you message
-      //     $('#paymentOptionsModal').modal('hide');
-      //     alert('Thank you! Your order will be processed and dispatched as soon as possible.');
-
-      //     // Example order details (these should be retrieved from your actual order data)
-      //     const orderDetails = {
-      //       orderId: 'ORD123456',
-      //       customerName: 'John Doe',
-      //       phoneNumber: phoneNumber,
-      //       selectedCategory: 'Fast Food',
-      //       selectedRestaurant: 'Restaurant A',
-      //       customerLocation: '123 Street, City',
-      //       expectedDeliveryTime: '45 minutes',
-      //       dishes: [
-      //         { dishCode: 'D001', dishName: 'Burger', quantity: 2, price: 500 },
-      //         { dishCode: 'D002', dishName: 'Fries', quantity: 1, price: 200 }
-      //       ],
-      //       totalPrice: amount
-      //     };
       try {
-        const customerDetails = getCustomerDetails();
-        const cartItems = getCartItems();
-        const totalPrice = calculateTotalPrice(cartItems);
+        const totalPrice = calculateTotalPrice(); 
 
-        if (!customerDetails.customerName || !customerDetails.phoneNumber || !customerDetails.customerLocation || !customerDetails.expectedDeliveryTime) {
-          alert('Please fill in all required fields.');
-          return;
-        }
+        // Calculate delivery charges
+        const customerLocation = document.getElementById("customerLocation").value.trim();
+        const deliveryCharges = await calculateDeliveryCharges(customerLocation);
 
-        // const phoneNumber = customerDetails.phoneNumber;
-        const phoneNumber = prompt('Enter your M-Pesa phone number:');
-        const amount = prompt('Enter the amount to pay:');
-        const response = await initiateMpesaPayment(phoneNumber, amount);
-        //const response = await initiateMpesaPayment(phoneNumber, totalPrice);
+        // Calculate the total amount to be paid
+        const finalAmount = Math.round(totalPrice + deliveryCharges);
 
+ 
+         // Prompt for M-Pesa phone number with placeholder
+         const paymentPhoneNumber = prompt('Enter your M-Pesa phone number (format: 254712345678):', '254');
+ 
+         // Validate phone number
+         if (!paymentPhoneNumber || !/^254\d{9}$/.test(paymentPhoneNumber)) {
+           alert('Please enter a valid phone number in the format 254712345678.');
+           return;
+         }
+    
+        // Prompt for the amount with total price pre-filled
+        const amount = prompt('Enter the amount to pay:', finalAmount);
+
+ 
+         if (isNaN(amount) || amount <= 0) {
+           alert('Please enter a valid amount.');
+           return;
+         }
+          // Initiate M-Pesa payment
+        const response = await initiateMpesaPayment(paymentPhoneNumber, amount);
         if (response && response.ResponseCode === '0') {
           // Display success message
-          alert('Payment successful! Your order will be processed.');
-
+          alert('Payment successful! Your order will be processed and dispatched as soon as possible. Thank you');
+           
           // Close the modal and show thank you message
           $('#paymentOptionsModal').modal('hide');
-          alert('Thank you! Your order will be processed and dispatched as soon as possible.');
-          const uuidv4 = require('uuid').v4
+          // alert('Thank you! Your order will be processed and dispatched as soon as possible.');
 
-          const orderDetails = {
-            orderId: uuidv4(),  // Generate a unique order ID
-            ...customerDetails,
-            selectedCategory: cartItems[0]?.dishCategory || 'Unknown Category',
-            selectedRestaurant: cartItems[0]?.restaurant || 'Unknown Restaurant',
-            dishes: cartItems,
-            totalPrice: totalPrice,
-            delivered: false,
-            paid: true,
-            createdAt: new Date().toISOString()
-          };
+            // Dynamically retrieve order details from the relevant elements
+            const orderId = 'ORD123456'; // You might want to generate this dynamically
+            const customerName = document.getElementById('customerName').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const selectedCategory = document.getElementById('selectedCategory').innerText;
+            const selectedRestaurant = document.getElementById('selectedRestaurant').innerText;
+            const customerLocation = document.getElementById('customerLocation').value;
+            const expectedDeliveryTime = document.getElementById('expectedDeliveryTime').value;
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+  
+            console.log('Cart items:', cartItems);
+          // Handle empty cart case
+          if (cartItems.length === 0) {
+            alert('Your cart is empty. Please add items to your cart before proceeding with the payment.');
+            return;
+          }
 
-          
+          // Validate cart items and construct dishes array
+          const dishes = cartItems.map(item => {
+            // Debug: Log each item
+            console.log('Cart item:', item);
+
+            if (!item.dishCode || !item.dishName || !item.quantity || !item.dishPrice) {
+              console.error('Invalid item detected:', item);
+              throw new Error('Invalid cart item detected. Please ensure all items in your cart are valid.');
+            }
+
+            return {
+              dishCode: item.dishCode,
+              dishName: item.dishName,
+              quantity: item.quantity,
+              price: item.dishPrice * 1.2
+            };
+          });
+
+          const currentUser = await getCurrentUser();
+
+          console.log('Current user ID:', currentUser._id);
+
+            const orderDetails = {
+              orderId: orderId,
+              customerName: customerName,
+              phoneNumber: phoneNumber,
+              selectedCategory: selectedCategory,
+              selectedRestaurant: selectedRestaurant, 
+              customerLocation: customerLocation,
+              expectedDeliveryTime: expectedDeliveryTime,
+              dishes: dishes,
+              deliveryCharges: deliveryCharges,
+              totalPrice: amount,
+              userId: currentUser._id
+            };
+  
           // Save order to the database
           await saveOrderToDatabase(orderDetails); 
 
@@ -696,19 +747,62 @@ async function processPayment(method) {
         } else {
           // Handle payment failure
           alert('Payment failed. Please try again.');
+          handlePaymentFailure();
         }
       } catch (error) {
         console.error('M-Pesa payment error:', error);
         alert('Error initiating M-Pesa payment. Please try again.');
+        handlePaymentFailure();
       }
       break;
     case 'airtel':
       console.log('Processing Airtel Money payment...');
+      try {
+        await handleAirtelPayment();
+      } catch (error) {
+        console.error('Airtel payment error:', error);
+        alert('Error initiating Airtel payment. Please try again.');
+        handlePaymentFailure();
+      }
       break;
     default:
       console.error('Unsupported payment method.');
       return;
   }
+}
+// Function to calculate delivery charges based on customer location
+async function calculateDeliveryCharges(customerLocation) {
+  return new Promise((resolve, reject) => {
+    getRestaurantCoordinates(firstDishRestaurant, function(restaurantLocation) {
+      if (!restaurantLocation) {
+        reject(new Error('Unable to get restaurant location.'));
+      }
+
+      const geocoder = new google.maps.Geocoder();
+      geocoder.geocode({ address: customerLocation }, function(results, status) {
+        if (status === "OK") {
+          const customerCoordinates = results[0].geometry.location;
+          const distance = calculateDistance(
+            restaurantLocation.lat(),
+            restaurantLocation.lng(),
+            customerCoordinates.lat(),
+            customerCoordinates.lng()
+          );
+
+          let deliveryCharges = 0;
+          if (distance < 2) {
+            deliveryCharges = 50;
+          } else {
+            deliveryCharges = distance * 50;
+          }
+
+          resolve(deliveryCharges);
+        } else {
+          reject(new Error('Geocode was not successful for the following reason: ' + status));
+        }
+      });
+    });
+  });
 }
 function handlePaymentFailure() {
     const retry = confirm('Payment transfer failed! Would you like to try again?');
@@ -724,6 +818,7 @@ function handlePaymentFailure() {
         saveOrderForLater();
       } else {
         alert('Order has been canceled.');
+        clearCart
         // Close modal and return to home page
         $('#paymentOptionsModal').modal('hide');
         setTimeout(() => {
@@ -733,26 +828,31 @@ function handlePaymentFailure() {
     }
   }
 
-async function saveOrderForLater() {
-  const orderDetails = {
-    orderId: 'ORD123456',
-    customerName: 'John Doe',
-    phoneNumber: prompt('Enter your M-Pesa phone number:'),
-    selectedCategory: 'Fast Food',
-    selectedRestaurant: 'Restaurant A',
-    customerLocation: '123 Street, City',
-    expectedDeliveryTime: '45 minutes',
-    dishes: [
-      { dishCode: 'D001', dishName: 'Burger', quantity: 2, price: 500 },
-      { dishCode: 'D002', dishName: 'Fries', quantity: 1, price: 200 }
-    ],
-    totalPrice: prompt('Enter the amount to pay:')
-  };
-
-  // Save the order details in the local storage or database
-  localStorage.setItem('savedOrder', JSON.stringify(orderDetails));
-}
-
+  function saveOrderForLater() {
+    const orderDetails = getOrderDetails();
+    localStorage.setItem('savedOrder', JSON.stringify(orderDetails));
+  }
+  
+  function getOrderDetails() {
+    const customerName = document.getElementById('customerName').value;
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    const selectedCategory = document.getElementById('selectedCategory').innerText;
+    const selectedRestaurant = document.getElementById('selectedRestaurant').innerText;
+    const customerLocation = document.getElementById('customerLocation').value;
+    const expectedDeliveryTime = document.getElementById('expectedDeliveryTime').value;
+    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+   
+    return {
+      customerName,
+      phoneNumber,
+      selectedCategory,
+      selectedRestaurant,
+      customerLocation,
+      expectedDeliveryTime,
+      cartItems
+    };
+  }
+  
 function payWithMpesa() {
   const phoneNumber = prompt('Enter your M-Pesa phone number:');
   const amount = prompt('Enter the amount to pay:');
@@ -820,15 +920,41 @@ async function sendReceipt(phoneNumber, amount) {
   return await response.json();
 }
 
+// async function saveOrderToDatabase(orderDetails) {
+//   const response = await fetch('http://localhost:3000/api/paidOrder', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+      
+//     },
+//     body: JSON.stringify(orderDetails)
+//   });
+//   return await response.json();
+// }
 async function saveOrderToDatabase(orderDetails) {
-  const response = await fetch('http://localhost:3000/api/paidOrder', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(orderDetails)
-  });
-  return await response.json();
+  try {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+    const response = await fetch('http://localhost:3000/api/paidOrder', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        //'Authorization': `Bearer ${token}` // Pass the token for authentication
+      },
+      body: JSON.stringify(orderDetails)
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Order saved successfully:', data);
+    } else {
+      const error = await response.json();
+      console.error('Error saving order:', error);
+      alert('Error saving order: ' + error.message);
+    }
+  } catch (error) {
+    console.error('Error saving order:', error);
+    alert('Error saving order. Please try again.');
+  }
 }
 function clearCart() {
   const cartItemsElement = document.getElementById('cartItems');
@@ -845,3 +971,151 @@ function clearCart() {
   localStorage.removeItem('cart');
   firstDishRestaurant = ''; // Reset the firstDishRestaurant variable
 }
+
+
+// AIRTEL PAYMENT OPTION
+
+// async function handleAirtelPayment() {
+//   try {
+//     // Retrieve total price from cart
+//     const totalPriceElement = document.getElementById("totalPrice");
+//     const totalPrice = totalPriceElement ? Math.round(totalPriceElement.textContent) : 0;
+
+//     // Prompt for Airtel phone number with placeholder
+//     const paymentPhoneNumber = prompt('Enter your Airtel phone number (format: 254712345678):', '254');
+
+//     // Validate phone number
+//     if (!paymentPhoneNumber || !/^254\d{9}$/.test(paymentPhoneNumber)) {
+//       alert('Please enter a valid phone number in the format 254712345678.');
+//       return;
+//     }
+
+//     // Calculate delivery charges
+//     const customerLocation = document.getElementById("customerLocation").value.trim();
+//     const deliveryCharges = await calculateDeliveryCharges(customerLocation);
+
+//     // Prompt for the amount with total price pre-filled
+//     const amount = prompt('Enter the amount to pay:', Math.round(totalPrice + deliveryCharges));
+
+//     if (isNaN(amount) || amount <= 0) {
+//       alert('Please enter a valid amount.');
+//       return;
+//     }
+
+//     // Initiate Airtel payment
+//     const response = await initiateAirtelPayment(paymentPhoneNumber, amount);
+//     if (response && response.ResponseCode === '0') {
+//       // Display success message
+//       alert('Payment successful! Your order will be processed and dispatched as soon as possible. Thank you.');
+       
+//       // Close the modal and show thank you message
+//       $('#paymentOptionsModal').modal('hide');
+//       // alert('Thank you! Your order will be processed and dispatched as soon as possible.');
+
+//         // Dynamically retrieve order details from the relevant elements
+//         const orderId = 'ORD123456'; // You might want to generate this dynamically
+//         const customerName = document.getElementById('customerName').value;
+//         const phoneNumber = document.getElementById('phoneNumber').value;
+//         const selectedCategory = document.getElementById('selectedCategory').innerText;
+//         const selectedRestaurant = document.getElementById('selectedRestaurant').innerText;
+//         const customerLocation = document.getElementById('customerLocation').value;
+//         const expectedDeliveryTime = document.getElementById('expectedDeliveryTime').value;
+//         const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+
+//         console.log('Cart items:', cartItems);
+//       // Handle empty cart case
+//       if (cartItems.length === 0) {
+//         alert('Your cart is empty. Please add items to your cart before proceeding with the payment.');
+//         return;
+//       }
+
+//       // Validate cart items and construct dishes array 
+//       const dishes = cartItems.map(item => {
+//         // Debug: Log each item
+//         console.log('Cart item:', item);
+
+//         if (!item.dishCode || !item.dishName || !item.quantity || !item.dishPrice) {
+//           console.error('Invalid item detected:', item);
+//           throw new Error('Invalid cart item detected. Please ensure all items in your cart are valid.');
+//         }
+
+//         return {
+//           dishCode: item.dishCode,
+//           dishName: item.dishName,
+//           quantity: item.quantity,
+//           price: item.dishPrice * 1.2
+//         };
+//       });
+
+//        // Retrieve the current user ID
+//        const currentUser = await getCurrentUser();
+
+//         const orderDetails = {
+//           orderId: orderId,
+//           customerName: customerName,
+//           phoneNumber: phoneNumber,
+//           selectedCategory: selectedCategory,
+//           selectedRestaurant: selectedRestaurant, 
+//           customerLocation: customerLocation,
+//           expectedDeliveryTime: expectedDeliveryTime,
+//           dishes: dishes,
+//           deliveryCharges: deliveryCharges,
+//           totalPrice: amount,
+//           userId: currentUser._id
+//         };
+
+//       // Save order to the database
+//       await saveOrderToDatabase(orderDetails); 
+
+//       // Optionally, clear the cart
+//       clearCart();
+
+//       // Redirect to the home page after a delay
+//       setTimeout(() => {
+//         window.location.href = 'index.html'; // Adjust the URL to your home page
+//       }, 2000);
+//     } else {
+//       // Handle payment failure
+//       alert('Payment failed. Please try again.');
+//       handlePaymentFailure();
+//     }
+//   } catch (error) {
+//     console.error('Airtel payment error:', error);
+//     alert('Error initiating Airtel payment. Please try again.');
+//     handlePaymentFailure();
+//   }
+// }
+
+// async function initiateAirtelPayment(phoneNumber, amount) {
+//   try {
+//     const response = await axios.post('http://localhost:3000/api/airtel/pay', {
+//       phoneNumber,
+//       amount
+//     }, {
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+
+//     if (response.status === 200) {
+//       const data = response.data;
+//       console.log('Payment Response:', data);
+//       if (data.ResponseCode === '0') {
+//         alert(data.CustomerMessage);
+//         return data; // Return the data for further processing
+//       } else {
+//         console.error('Payment failed:', data.ResponseDescription);
+//         alert('Payment failed. Please try again.');
+//         return null;
+//       }
+//     } else {
+//       console.error('Failed to initiate payment:', response.statusText);
+//       alert('Error initiating Airtel payment. Please try again.');
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error('Error initiating Airtel payment:', error);
+//     alert('Error initiating Airtel payment. Please try again.');
+//     return null;
+//   }
+// }

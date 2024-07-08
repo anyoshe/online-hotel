@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="user.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script> -->
     <title>User Landing Page</title>
 </head>
 
@@ -19,7 +19,7 @@
             <div class="Kitchen">
                 <h3>OUR KITCHEN</h3>
             </div>
-               <a href="./../customer/index.html">Go Home</a>
+            <a href="./../customer/index.html">Go Home</a>
             <div class="toggle-button">
                 <span></span>
                 <span></span>
@@ -29,38 +29,48 @@
     </nav>
     <div class="page-content">
         <div class="dishControl">
-              <h4>MENU CONTROLS</h4>
+            <h4>MENU CONTROLS</h4>
             <button id="openModalBtn">Add New Dishes</button>
 
             <div id="modalContainer" class="hidden">
                 <div class="modal">
                     <div class="modal-content">
                         <button type="button" id="closeModalBtn">&times;</button>
-                        <form action="" class="addDishForm" id="addDishForm">
+                        <form action="" class="addDishForm" id="addDishForm" enctype="multipart/form-data">
                             <h4>Add New Dish!</h4>
                             <label for="dishCode" class="dishCode">Dish Code :</label>
-                            <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input" required>
-                            <label for="dishName" class="dishName">Dish name :</label>
-                            <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input" required>
-                            <label for="quantity" class="quantity">Quantity :</label>
-                            <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input" required>
-                            <label for="dishPrice" class="label">Dish Price :</label>
-                            <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice" class="input" required>
-                            <label for="dishCategory" class="label">Dish Category :</label>
-                            <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory" class="input" required>
-                            <label for="restaurant" class="label">Restaurant :</label>
-                            <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant" class="input" required>
-                            <label for="dishDescription" class="label">Dish Description :</label>
-                            <input type="text" name="dishDescription" placeholder="Description Of Dish" id="dishDescription" class="input"
+                            <input type="text" name="dishCode" placeholder="Dish Code" id="dishCode" class="input"
                                 required>
-                        
+                            <label for="dishName" class="dishName">Dish name :</label>
+                            <input type="text" name="dishName" placeholder="Dish Name" id="dishName" class="input"
+                                required>
+                            <label for="quantity" class="quantity">Quantity :</label>
+                            <input type="number" name="quantity" placeholder="Quantity" id="quantity" class="input"
+                                required>
+                            <label for="dishPrice" class="label">Dish Price :</label>
+                            <input type="number" name="dishPrice" placeholder="Price Of Dish" id="dishPrice"
+                                class="input" required>
+                            <label for="dishCategory" class="label">Dish Category :</label>
+                            <input type="text" name="dishCategory" placeholder="Category Of Dish" id="dishCategory"
+                                class="input" required>
+                            <label for="restaurant" class="label">Restaurant :</label>
+                            <input type="text" name="restaurant" placeholder="Restaurant" id="restaurant" class="input"
+                                required>
+                            <label for="dishDescription" class="label">Dish Description :</label>
+                            <input type="text" name="dishDescription" placeholder="Description Of Dish"
+                                id="dishDescription" class="input" required>
+
                             <label for="image" class="label">Dish Image :</label>
                             <input type="file" name="image" id="imageInput" class="input" required>
                             <button id="submitButton" class="addButton">Add Dish</button>
                         </form>
+                        <div id="loadingIndicator" class="hidden">Loading...</div>
                     </div>
                 </div>
             </div>
+            <!-- <button id="openModalBtn">Open Modal</button>
+            <button id="closeModalBtn">Close Modal</button> -->
+
 
             <button id="updateModalBtn">Update Your Dishes</button>
 
@@ -68,37 +78,124 @@
                 <div class="modal">
                     <div class="modal-content">
                         <button type="button" id="closeUpdateModalBtn">&times;</button>
-                        <form id="updateDishForm">
+                        <form id="updateDishForm" enctype="multipart/form-data">
                             <h4>Update Your Dishes!</h4>
+                            <div id="messageContainer"></div>
+
                             <label for="dishCode">Dish Code: </label>
                             <input type="text" id="dishCode" name="dishCode" class="input" required>
-                        
+
                             <label for="dishName">New Dish Name: </label>
                             <input type="text" id="updateDishName" name="dishName" class="input">
-                        
+
                             <label for="dishPrice">New Dish Price: </label>
                             <input type="number" id="updateDishPrice" name="dishPrice" class="input">
-                        
+
                             <label for="quantity">New Quantity: </label>
                             <input type="number" id="updateQuantity" name="quantity" class="input">
-                        
+
                             <label for="dishCategory" class="label">New Dish Category :</label>
                             <input type="text" name="dishCategory" id="updateDishCategory" class="input">
                             <label for="restaurant" class="label">New Restaurant :</label>
                             <input type="text" name="restaurant" id="updateRestaurant" class="input">
-                        
+
                             <label for="dishDescription">New Dish Description: </label>
                             <input type="text" id="updateDishDescription" name="dishDescription" class="input">
-                        
+
                             <label for="image" class="label">Dish Image :</label>
-                            <input type="file" name="image" id="image" class="input">
+                            <input type="file" name="image" id="imageInput" class="input"
+                                accept="image/jpeg, image/png, image/gif">
                             <div id="updateImagePreview"></div>
 
                             <button type="submit" class="updateDish" id="submitButton">Update Dish</button>
                         </form>
+
                     </div>
                 </div>
             </div>
+<div class="conference">
+    <h2>Conference and Meeting Services</h2>
+   
+    <form id="conferenceForm" enctype="multipart/form-data">
+        <label for="venueName">Venue Name:</label>
+        <input type="text" id="venueName" name="venueName" required>
+        
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+        
+        <label for="gpsCoordinates">GPS Coordinates:</label>
+        <input type="text" id="gpsCoordinates" name="gpsCoordinates">
+        
+        <label for="seatingCapacity">Seating Capacity:</label>
+        <input type="number" id="seatingCapacity" name="seatingCapacity" required>
+        
+        <label for="layoutOptions">Layout Options:</label>
+        <input type="text" id="layoutOptions" name="layoutOptions">
+        
+        <label for="roomDimensions">Room Dimensions:</label>
+        <input type="text" id="roomDimensions" name="roomDimensions">
+        
+        <label for="avEquipment">Audio Visual (AV) Equipment:</label>
+        <input type="text" id="avEquipment" name="avEquipment">
+        
+        <label for="cateringServices">Catering Services:</label>
+        <input type="text" id="cateringServices" name="cateringServices">
+        
+        <label for="wiFiAccess">Internet (Wi-Fi) Access:</label>
+        <input type="text" id="wiFiAccess" name="wiFiAccess">
+        
+        <label for="airConditioning">Air Conditioning/Heating:</label>
+        <input type="text" id="airConditioning" name="airConditioning">
+        
+        <label for="parkingFacilities">Parking Facilities:</label>
+        <input type="text" id="parkingFacilities" name="parkingFacilities">
+        
+        <label for="accessibility">Accessibility:</label>
+        <input type="text" id="accessibility" name="accessibility">
+        
+        <label for="pricingStructure">Pricing Structure:</label>
+        <input type="text" id="pricingStructure" name="pricingStructure" required>
+        
+        <label for="bookingAvailability">Booking Availability:</label>
+        <input type="text" id="bookingAvailability" name="bookingAvailability" required>
+        
+        <label for="paymentOptions">Payment Options:</label>
+        <input type="text" id="paymentOptions" name="paymentOptions" required>
+        
+        <label for="venueImages">Venue Images:</label>
+        <input type="file" id="venueImages" name="venueImages" multiple>
+        
+        <label for="videoTours">Video Tours:</label>
+        <input type="file" id="videoTours" name="videoTours" multiple>
+        
+        <label for="floorPlans">Floor Plans:</label>
+        <input type="file" id="floorPlans" name="floorPlans" multiple>
+        
+        <label for="eventPlanningAssistance">Event Planning Assistance:</label>
+        <input type="text" id="eventPlanningAssistance" name="eventPlanningAssistance">
+        
+        <label for="decorationServices">Decoration Services:</label>
+        <input type="text" id="decorationServices" name="decorationServices">
+        
+        <label for="transportServices">Transport Services:</label>
+        <input type="text" id="transportServices" name="transportServices">
+        
+        <label for="securityServices">Security Services:</label>
+        <input type="text" id="securityServices" name="securityServices">
+        
+        <label for="contactPerson">Contact Person:</label>
+        <input type="text" id="contactPerson" name="contactPerson" required>
+        
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+        
+        <label for="emailAddress">Email Address:</label>
+        <input type="email" id="emailAddress" name="emailAddress" required>
+        
+        <button type="submit">Submit</button>
+    </form>
+    <div id="statusMessage"></div>
+</div>
             <div class="deleSearch">
                 <div class="dishDetails">
                     <label for="dishIdentifier">Delete Dish</label>
@@ -130,8 +227,8 @@
                         <button id="searchButton">Search</button>
                     </div>
                     <div id="searchResults"></div>
-                      
-                      
+
+
                     <ul class="nav-links">
                         <li><a href="#" onclick="fetchAllDishes()">Dishes</a></li>
                         <li><a href="#" id="fetchOrdersButton">Orders</a></li>
@@ -147,27 +244,26 @@
                 </div>
             </nav>
             <div class="allDishes">
-               
+
                 <div id="dishContainer"></div>
             </div>
 
             <div class="dayOrders">
                 <div id="ordersList"></div>
                 <div id="worthSummary">
-                <p>Expected Sales: Kes. <span id="totalSalesExpected"> 0.00</span></p> 
-                <p>Expected Commission: Kes. <span id="commissionExpected">0.00</span></p><br>
+                    <p>Expected Sales: Kes. <span id="totalSalesExpected"> 0.00</span></p>
+                    <p>Expected Commission: Kes. <span id="commissionExpected">0.00</span></p><br>
                 </div>
                 <div id="sales">
-                <div id="salesList"></div> 
-                <div id="salesTotal">
-                 <p>Total Sales:  Kes.  <span id="totalSales">0.00</span></p>
-                <p>Commission Due: Kes.  <span id="commissionDue">0.00</span></p>
-                <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
-                 </div> 
+                    <div id="salesList"></div>
+                    <div id="salesTotal">
+                        <p>Total Sales: Kes. <span id="totalSales">0.00</span></p>
+                        <p>Commission Due: Kes. <span id="commissionDue">0.00</span></p>
+                        <p>Total Deliveries Made: <span id="totalDeliveries">0</span></p>
+                    </div>
                 </div>
-            </div>
         </div>
-
+        </div>
     </div>
 
     <script src="user.js"></script>

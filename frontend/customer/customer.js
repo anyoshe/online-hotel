@@ -1,52 +1,155 @@
-// document.addEventListener('DOMContentLoaded', () => {
-//   const openModalBtn = document.getElementById('openModalBtn');
-//   // const openModalVariety = document.getElementById('openModalVariety');
-//   const closeModalBtn = document.getElementById('closeModalBtn');
-//   const modalContainer = document.getElementById('modalContainer');
-//   // const modalContainerVariety = document.getElementById('modalContainerVariety');
-//   // Event listeners for opening the modal
-//   openModalBtn.addEventListener('click', () => {
-//     modalContainer.classList.remove('hidden');
-//   });
+let slideIndex = 0;
+showSlides();
 
-//   // openModalVariety.addEventListener('click', () => {
-//   //   modalContainerVariety.classList.remove('hidden');
-//   // });
+function showSlides() {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  slideIndex++;
+  if (slideIndex > slides.length) { slideIndex = 1 }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex - 1].style.display = "block";
+  dots[slideIndex - 1].className += " active";
+  setTimeout(showSlides, 5000); // Change image every 5 seconds
+}
 
-//   openModalBtn.addEventListener('click', (event) => {
-//     event.preventDefault(); // Prevents the default action of the link
-//     modalContainer.classList.remove('hidden'); // Shows the modal
-//   });
+function plusSlides(n) {
+  slideIndex += n;
+  showSlides();
+}
 
-  // openModalVariety.addEventListener('click', (event) => {
-  //   event.preventDefault(); // Prevents the default action of the link
-  //   modalContainerVariety.classList.remove('hidden'); // Shows the modal
-  // });
+function currentSlide(n) {
+  slideIndex = n;
+  showSlides();
+}
 
-  // Event listener for closing the modal
-  // closeModalBtn.addEventListener('click', () => {
-  //   modalContainer.classList.add('hidden');
-  // });
-  // closeModalBtn.addEventListener('click', () => {
-  //   modalContainerVariety.classList.add('hidden');
-  // });
+const script = document.createElement("script");
+script.src =
+  "https://maps.googleapis.com/maps/api/js?key=AIzaSyCmuVWpm0lkdNiq3wWZpEz0XYtDjmoN-wY&callback=initMap&libraries=places&loading=async"; // Replace 'YOUR_API_KEY' with your actual Google Maps API key
+script.async = true;
+document.head.appendChild(script);
+let specialOrderMap, eventOrderMap, specialOrderMarker, eventOrderMarker;
 
-  // Improved window click event listener
-  // window.addEventListener('click', (event) => {
-  //   // Check if the clicked element is the modal container or a child of the modal container
-  //   if (event.target === modalContainer || modalContainer.contains(event.target)) {
-  //     modalContainer.classList.add('hidden');
-  //   }
-  // });
+function initMap() {
+  const initialPosition = { lat: -3.2222, lng: 40.1167 };
 
-  // window.addEventListener('click', (event) => {
-  //   // Check if the clicked element is the modal container or a child of the modal container
-  //   if (event.target === modalContainerVariety || modalContainerVariety.contains(event.target)) {
-  //     modalContainerVariety.classList.add('hidden');
-  //   }
-  // });
+  // Initialize the special order map
+  specialOrderMap = new google.maps.Map(document.getElementById('map'), {
+    zoom: 8,
+    center: initialPosition
+  });
+  specialOrderMarker = new google.maps.Marker({
+    position: initialPosition,
+    map: specialOrderMap,
+    draggable: true
+  });
+  google.maps.event.addListener(specialOrderMarker, 'dragend', function () {
+    const position = specialOrderMarker.getPosition();
+    document.getElementById('deliveryLocation').value = `${position.lat()}, ${position.lng()}`;
+  });
 
-// });
+  // Initialize the event order map
+  eventOrderMap = new google.maps.Map(document.getElementById('mapE'), {
+    zoom: 8,
+    center: initialPosition
+  });
+  eventOrderMarker = new google.maps.Marker({
+    position: initialPosition,
+    map: eventOrderMap,
+    draggable: true
+  });
+  google.maps.event.addListener(eventOrderMarker, 'dragend', function () {
+    const position = eventOrderMarker.getPosition();
+    document.getElementById('event-location').value = `${position.lat()}, ${position.lng()}`;
+  });
+}
+
+function showMap(mapId) {
+  document.getElementById(mapId).style.display = 'block';
+  if (mapId === 'map') {
+    google.maps.event.trigger(specialOrderMap, 'resize');
+    // specialOrderMap.setCenter(specialOrderMarker.getPosition());
+  } else if (mapId === 'mapE') {
+    google.maps.event.trigger(eventOrderMap, 'resize');
+    // eventOrderMap.setCenter(eventOrderMarker.getPosition());
+  }
+}
+
+
+// JavaScript to handle form submission
+$(document).ready(function () {
+  $('#specialOrderForm').on('submit', function (event) {
+    event.preventDefault();
+    const formData = {
+      customerName: $('#customerName').val(),
+      customerEmail: $('#customerEmail').val(),
+      customerPhone: $('#customerPhone').val(),
+      deliveryLocation: $('#deliveryLocation').val(),
+      deliveryDate: $('#deliveryDate').val(),
+      deliveryTime: $('#deliveryTime').val(),
+      orderDetails: $('#orderDetails').val(),
+      specialInstructions: $('#specialInstructions').val()
+    };
+    $.ajax({
+      type: 'POST',
+      url: 'http://localhost:3000/api/special-orders',
+      data: JSON.stringify(formData),
+      contentType: 'application/json',
+      success: function (response) {
+        alert('Special order placed successfully!');
+        $('#specialOrderModal').modal('hide');
+        $('#specialOrderForm')[0].reset();
+        // Reset the map to initial position
+        initMap();
+      },
+      error: function (error) {
+        alert('Failed to place the order. Please try again.');
+      }
+    });
+  });
+});
+//event submission
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('event-order-form');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = {
+      name: form.name.value,
+      email: form.email.value,
+      phone: form.phone.value,
+      eventDate: form['event-date'].value,
+      eventLocation: form['event-location'].value,
+      message: form.message.value
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/submit-event-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        alert('Event order submitted successfully');
+        form.reset();
+      } else {
+        const error = await response.text();
+        alert(`Error submitting event order: ${error}`);
+      }
+    } catch (error) {
+      alert(`Error submitting event order: ${error.message}`);
+    }
+  });
+});
 
 document.addEventListener('DOMContentLoaded', function () {
   const searchInput = document.getElementById('searchQuery');
@@ -115,13 +218,13 @@ document.addEventListener('DOMContentLoaded', function () {
           searchResults.innerHTML = '';
           const detailHtml = `
           <div class="detail-container">
-            <img src="path/to/image.jpg" alt="${data.dishName}">
-            <h2>${data.dishName}</h2>
+            <img src="${data.imageUrl}" alt="${data.dishName}">
+            <h5>${data.dishName}</h5>
             <p>${data.dishDescription}</p>
             <p>Category: ${data.dishCategory}</p> 
             <p>Restaurant: ${data.restaurant}</p>
-            <p class= restaurant>Price: ${data.dishPrice*1.2}</p>
-          </div>`;
+            <p class= restaurant>Price: ${data.dishPrice * 1.2}</p>
+            </div>`;
           detailContainer.innerHTML = detailHtml;
         } else {
           console.error('No details found for this dish.');
@@ -139,148 +242,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 });
-// document.addEventListener('DOMContentLoaded', function () {
-//   const searchInput = document.getElementById('searchQuery');
-//   const searchResults = document.getElementById('searchResults');
-//   const detailContainer = document.getElementById('details');
 
-//   searchInput.addEventListener('input', function () {
-//       const searchTerm = searchInput.value.trim();
-//       if (!searchTerm) return;
-
-//       let searchType = 'dish'; // Default to dish search
-//       if (/category/.test(searchTerm)) {
-//           searchType = 'category';
-//       } else if (/restaurant/.test(searchTerm)) {
-//           searchType = 'restaurant';
-//       }
-
-//       switch (searchType) {
-//           case 'dish':
-//               fetchDishes(searchTerm);
-//               break;
-//           case 'category':
-//               fetchCategories(searchTerm);
-//               break;
-//           case 'restaurant':
-//               fetchRestaurants(searchTerm);
-//               break;
-//           default:
-//               console.error('Unsupported search type:', searchType);
-//       }
-//   });
-
-//   async function fetchDishes(searchTerm) {
-//     const response = await fetch(`http://localhost:3000/api/dishes?s=${encodeURIComponent(searchTerm)}`);
-//     const dishes = await response.json();
-//     if (dishes.length === 0) {
-//         searchResults.innerHTML = '<p>No dishes found.</p>';
-//     } else {
-//         const dishesHtml = dishes.map(dish => `
-//             <div class="suggestion-item" data-dish-code="${dish.dishCode}">
-//                 ${dish.dishName} - ${dish.dishCategory} - ${dish.restaurant}
-//             </div>`).join('');
-//         searchResults.innerHTML = dishesHtml;
-//     }
-// }
-
-
-// async function fetchCategories(searchTerm) {
-//   const response = await fetch(`http://localhost:3000/api/categories/suggestions?categoryName=${encodeURIComponent(searchTerm)}`);
-//   const categories = await response.json();
-//   if (categories.length === 0) {
-//       searchResults.innerHTML = '<p>No categories found.</p>';
-//   } else {
-//       const categoriesHtml = categories.map(category => `
-//           <div class="suggestion-item" data-category-name="${category.dishCategory}">
-//               ${category.dishCategory}
-//           </div>`).join('');
-//       searchResults.innerHTML = categoriesHtml;
-//   }
-// }
-
-
-// async function fetchRestaurants(searchTerm) {
-//   const response = await fetch(`http://localhost:3000/api/restaurants/suggestions?restaurantName=${encodeURIComponent(searchTerm)}`);
-//   const restaurants = await response.json();
-//   if (restaurants.length === 0) {
-//       searchResults.innerHTML = '<p>No restaurants found.</p>';
-//   } else {
-//       const restaurantsHtml = restaurants.map(restaurant => `
-//           <div class="suggestion-item" data-restaurant-name="${restaurant.restaurant}">
-//               ${restaurant.restaurant}
-//           </div>`).join('');
-//       searchResults.innerHTML = restaurantsHtml;
-//   }
-// }
-
-
-
-//   // Function to fetch and display dish details
-//   async function fetchDetails(dishCode) {
-//       const url = `http://localhost:3000/api/dishes/details/${encodeURIComponent(dishCode)}`;
-//       const response = await fetch(url);
-//       const data = await response.json();
-//       if (data && Object.keys(data).length > 0) {
-//           detailContainer.innerHTML = `
-//           <div class="detail-container">
-//               <img src="path/to/image.jpg" alt="${data.dishName}">
-//               <h2>${data.dishName}</h2>
-//               <p>${data.dishDescription}</p>
-//               <p>Category: ${data.dishCategory}</p>
-//               <p>Restaurant: ${data.restaurant}</p>
-//               <p>Price: ${data.dishPrice}</p>
-//           </div>`;
-//       } else {
-//           detailContainer.innerHTML = '<p>No details found for this dish.</p>';
-//       }
-//   }
-// });
-// const searchBar = document.getElementById('search-bar');
-// const voiceSearchButton = document.getElementById('voice-search');
-// const searchButton = document.getElementById('search-button');
-
-// // Replace with your actual function to handle search query (backend integration)
-// function handleSearch(query) {
-//   console.log(`Search query: ${query}`);
-//   // Perform search using your backend logic here
-// }
-
-// // Voice search functionality using Web Speech API
-// if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-//   const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-
-//   voiceSearchButton.addEventListener('click', () => {
-//     recognition.start();
-//     recognition.onresult = (event) => {
-//       const searchQuery = event.results[0][0].transcript;
-//       searchBar.value = searchQuery;
-//     };
-//   });
-// } else {
-//   voiceSearchButton.disabled = true;
-//   console.error('Speech Recognition is not supported by your browser');
-// }
-
-// // Handle search on button click or enter key press
-// searchButton.addEventListener('click', () => {
-//   const searchQuery = searchBar.value.trim();
-//   if (searchQuery) {
-//     handleSearch(searchQuery);
-//   }
-// });
-
-// searchBar.addEventListener('keypress', (event) => {
-//   if (event.key === 'Enter') {
-//     const searchQuery = searchBar.value.trim();
-//     if (searchQuery) {
-//       handleSearch(searchQuery);
-//     }
-//   }
-// });
-
-
-
+// mic search functions
 const recognition = new window.webkitSpeechRecognition();
 const startButton = document.querySelector("#start");
 const stopButton = document.querySelector("#stop");
@@ -289,7 +252,7 @@ startButton.addEventListener("click", (event) => {
   if (startButton.classList.contains("show")) {
     startButton.classList.add("hide");
     startButton.classList.remove("show");
-    stopButton.classList.remove("hide"); 
+    stopButton.classList.remove("hide");
     stopButton.classList.add("show");
     startRecording();
   }
@@ -338,8 +301,7 @@ saidText = '';
 
 
 // fetchDishes();
-//const modal = document.getElementById("dishModal");
-const dishList = document.getElementById('dish-list');
+const modalBody = document.getElementById('custom-modal-body');
 let allDishes = []; // Store all fetched dishes
 
 async function fetchDishes() {
@@ -354,131 +316,159 @@ async function fetchDishes() {
     }
 
     allDishes = data.dishes;
-    // Display all dishes on page load (assuming "Popular Dishes" represents all dishes)
-    filterDishes('Popular Dishes');
   } catch (error) {
     console.error(error);
     alert('An error occurred!');
   }
 }
 
-function filterDishes(category) {
-  let filteredDishes;
-  if (category === 'All') {
-    filteredDishes = allDishes;
-  } else {
-    filteredDishes = allDishes.filter(dish => dish.dishCategory.toLowerCase() === category.toLowerCase());
-  }
-  displayDishes(filteredDishes, category);
+function openCustomModal(category) {
+  const filteredDishes = allDishes.filter(dish => dish.dishCategory.toLowerCase() === category.toLowerCase());
+  displayDishes(filteredDishes);
+  $('#customModal').modal('show'); // Use jQuery to show the Bootstrap modal
 }
 
-function displayDishes(dishes, category) {
-  dishList.innerHTML = ''; // Clear existing content
-
-  if (dishes.length === 0 && category !== 'All') {
-    // Only display message for non-"All" filters with no results
-    dishList.innerHTML = '<p>No dishes found for this category.</p>';
-    return;
-  }
+function displayDishes(dishes) {
+  modalBody.innerHTML = ''; // Clear existing content
 
   dishes.forEach(dish => {
-    const dishItem = document.createElement('div');
-    dishItem.classList.add('dish-item');
-
-    const image = document.createElement('img');
-    image.classList.add('dish-image');
-    image.src = dish.imageUrl;
-
-    const name = document.createElement('p');
-    name.textContent = dish.dishName;
-
-    const description = document.createElement('p');
-    description.textContent = dish.dishDescription;
-   
-    const price = document.createElement('p'); 
-    price.textContent = `Kes.${dish.dishPrice * 1.2}`;
-
-    const button = document.createElement('button');
-    button.textContent = `Add to cart`;
-
-   
-    dishItem.appendChild(image);
-    dishItem.appendChild(name);
-    dishItem.appendChild(description);
-    dishItem.appendChild(price);
-    dishItem.appendChild(button);
-
-    dishList.appendChild(dishItem);
-    modal.style.display = "block";
+    const dishItem = createDishElement(dish);
+    modalBody.appendChild(dishItem);
   });
 }
-function closeModal() {
-  document.getElementById("dishModal").style.display = "none";
+
+function createDishElement(dish) {
+  const dishItem = document.createElement('div');
+  dishItem.classList.add('dish-item', 'mb-3');
+
+  const image = document.createElement('img');
+  image.classList.add('dish-image', 'img-fluid', 'mb-2');
+  image.src = dish.imageUrl;
+
+  const name = document.createElement('p');
+  name.textContent = dish.dishName;
+
+  const description = document.createElement('p');
+  description.textContent = dish.dishDescription;
+
+  const price = document.createElement('p');
+  price.textContent = `Kes. ${dish.dishPrice * 1.2}`;
+
+  const button = document.createElement('button');
+  button.textContent = 'Add to cart';
+  button.classList.add('btn', 'btn-primary');
+
+  dishItem.appendChild(image);
+  dishItem.appendChild(name);
+  dishItem.appendChild(description);
+  dishItem.appendChild(price);
+  dishItem.appendChild(button);
+
+  return dishItem;
 }
 
-// Close the modal if the user clicks outside of it
-window.onclick = function (event) {
-  const modal = document.getElementById("dishModal");
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
+function closeCustomModal() {
+  $('#customModal').modal('hide'); // Use jQuery to hide the Bootstrap modal
 }
 
 fetchDishes();
 
 
-// var slideIndex = 0;
-// showSlides();
+//Testmonials 
+document.addEventListener("DOMContentLoaded", () => {
+  const testimonialContainer = document.querySelector(".testimonial-container");
 
-// function showSlides() {
-//   var i;
-//   var slides = document.getElementsByClassName("mySlides");
-//   for (i = 0; i < slides.length; i++) {
-//     slides[i].style.display = "none";  
-//   }
-//   slideIndex++;
-//   if (slideIndex > slides.length) {slideIndex = 1}    
-//   slides[slideIndex-1].style.display = "block";  
-//   setTimeout(showSlides, 3000); // Change image every 3 seconds
-// }
-// slides[i].classList.remove("slide-in");
-//   }
-var slideIndex = 0;
-showSlides();
+  // Fetch testimonials from the backend (replace 'your-api-endpoint' with the actual endpoint)
+  fetch('http://localhost:3000/api/testimonials')
+    .then(response => response.json())
+    .then(data => {
+      data.testimonials.forEach(testimonial => {
+        const testimonialDiv = document.createElement("div");
+        testimonialDiv.classList.add("testimonial");
 
-// function showSlides() {
-//   var i;
-//   var slides = document.getElementsByClassName("mySlides");
-//   for (i = 0; i < slides.length; i++) {
-//     slides[i].style.display = "none";  
-//     slides[i].classList.remove("slide-in");
-//   }
-//   slideIndex++;
-//   if (slideIndex > slides.length) {slideIndex = 1}    
-//   slides[slideIndex-1].style.display = "block";  
-//   slides[slideIndex-1].classList.add("slide-in");
-//   setTimeout(showSlides, 5000); // Change image every 5 seconds (increase the interval)
-// }
-// var slideIndex = 0;
-// showSlides();
+        const testimonialText = document.createElement("p");
+        testimonialText.classList.add("testimonial-text");
+        testimonialText.textContent = `"${testimonial.message}"`;
 
-function showSlides() {
-  var i;
-  var slides = document.getElementsByClassName("mySlides");
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-    slides[i].classList.remove("slide-in", "slide-out");
+        const customerName = document.createElement("p");
+        customerName.classList.add("customer-name");
+        customerName.textContent = `- ${testimonial.name}`;
+
+        testimonialDiv.appendChild(testimonialText);
+        testimonialDiv.appendChild(customerName);
+
+        testimonialContainer.appendChild(testimonialDiv);
+      });
+    })
+    .catch(error => console.error('Error fetching testimonials:', error));
+});
+
+
+// Tracking orders
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('trackOrderLink').addEventListener('click', function() {
+    document.getElementById('orderTrackingModal').style.display = 'block';
+  });
+
+  document.getElementById('trackOrderButton').addEventListener('click', trackOrder);
+
+  async function trackOrder() {
+    const orderId = document.getElementById('orderIdInput').value.trim();
+    try {
+      const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
+      const order = await response.json(); 
+      console.log('Order data:', order);
+
+      if (order) {
+        document.getElementById('orderDetails2').innerHTML = `
+          <p>Order ID: ${order.orderId}</p>
+          <p>Customer Name: ${order.customerName}</p>
+          <p>Phone Number: ${order.phoneNumber}</p>
+          <p>Location: ${order.customerLocation}</p>
+          <p>Expected Delivery Time: ${order.expectedDeliveryTime}</p>
+          <p>Status: ${order.status}</p>
+          <h3>Dishes:</h3>
+          <ul>
+            ${order.dishes.map(dish => `<li>${dish.dishName} - ${dish.quantity} @ ${dish.price}</li>`).join('')}
+          </ul>
+          <p>Total Price: ${order.totalPrice}</p>
+        `;
+        updateOrderSchematic(order.status);
+      } else {
+        document.getElementById('orderDetails2').innerText = 'Order not found.';
+      }
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      document.getElementById('orderDetails2').innerText = 'Error fetching order.';
+    }
   }
-  
-  if (slideIndex > 0) {
-    slides[slideIndex - 1].classList.add("slide-out");
-  }
 
-  slideIndex++;
-  if (slideIndex > slides.length) { slideIndex = 1 }
-  
-  slides[slideIndex - 1].style.display = "block";
-  slides[slideIndex - 1].classList.add("slide-in");
-  
-  setTimeout(showSlides, 5000); // Change image every 5 seconds
-}
+  function updateOrderSchematic(status) {
+    const steps = [
+      'Order Placed',
+      'Order Received',
+      'Processed and packed', 
+      'Dispatched',
+      'Delivered',
+      'Service Rating'
+    ];
+    console.log('Order status:', status);
+
+  // Normalize the status string to match regardless of case
+  const normalizedStatus = status.toLowerCase();
+     // Reset all steps
+     steps.forEach((step, index) => {
+      const stepElement = document.getElementById(`step${index + 1}`);
+      stepElement.classList.remove('completed');
+    });
+
+    // Mark completed steps
+    steps.forEach((step, index) => {
+      const normalizedStep = step.toLowerCase();
+      const stepElement = document.getElementById(`step${index + 1}`);
+      if (steps.findIndex(s => s.toLowerCase() === normalizedStatus) >= index) {
+        stepElement.classList.add('completed');
+      }
+    });
+  }
+});

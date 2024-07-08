@@ -12,6 +12,7 @@
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.j s/1.14.7/umd/popper.min.js"></script> -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     .modal-body-scrollable {
       max-height: 60vh;
@@ -26,13 +27,13 @@
     <a href="./index.html">Home</a>
     <h3>Menu</h3>
     <a href="#" id="cart2" onclick="handleCartClick(event)">
-      <img src="../assets/cart2.jpg" width="20" height="20">Cart (<span id="cartCount">0</span>)</a>
+      <i class="fas fa-shopping-cart"></i>Cart (<span id="cartCount">0</span>)</a>
   </div>
   <div id="filter-container">
     <div class="category-container">
-      <!-- <p id="category"> Order by Cuisine/Dish Type</p> -->
+      
       <select id="categoryDropdown">
-        <option value="value">Order by Cuisine/Dish Type</option>
+        <option value="value" disabled selected>Order by Cuisine/Dish Type</option>
         <option value="African Dishes">African Dishes</option>
         <option value="Swahili Dishes">Swahili Dishes</option>
         <option value="Indian DIshes">Indian Dishes</option>
@@ -42,12 +43,33 @@
         <option value="specialOrders">Special Order</option>
       </select>
     </div>
-    <div class="restaurant-container">
-      <!-- <p id="restaurant">From which Restaurant</p> -->
+    <div id="dishModal" class="modal-category">
+      <div class="modal-content-category">
+        <span class="close-category" onclick="closeModal()">&times;</span>
+        <div id="dishContainer"></div>
+      </div>
+    </div>
+    <div class="restaurant-container"> 
+     
       <select id="restaurantDropdown">
-        <option>Order by Restaurant</option>
+        <option disabled selected>Order by Restaurant</option>
       </select>
     </div>
+    <div class="modal fade" id="dishesModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Dishes</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+          </div>
+          <div class="modal-body" id="dishesModalContent">
+            <!-- Dishes will be appended here -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
   </div>
   <div id="dish-categories">
     <h5>Popular Dishes</h5>
@@ -58,6 +80,8 @@
     <ul id="new-dishes"></ul>
     <h5>All Dishes</h5>
     <ul id="all-dishes"></ul>
+    <h5>Popular Restaurants</h5>
+    <ul id="popular-restaurants"></ul>
   </div>
   <div id="orderFormModal" class="modalOrder">
     <div class="modal-content-order">
@@ -77,7 +101,7 @@
             <label for="expectedDeliveryTime">Time you expect your dish?</label>
             <input type="time" id="expectedDeliveryTime" required><br>
             <label for="deliveryLocation">Delivery Location:</label><br>
-            <input type="text" id="customerLocationInput" hidden required>
+            <input type="text" id="customerLocation" hidden required>
             <div id="customerMap">
               <div id="mapContainer" class="map-container" style="width: 100%; height: 200px;"></div>
             </div>
@@ -112,28 +136,31 @@
 
     </div>
   </div>
-  <div class="modal fade" id="orderSummaryModal" tabindex="-1" role="dialog" aria-labelledby="orderSummaryModalLabel"
-    aria-hidden="true">
+  <div class="modal fade" id="orderSummaryModal" tabindex="-1" role="dialog" aria-labelledby="orderSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="orderSummaryModalLabel">Order Summary</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderSummaryModalLabel">Order Summary</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="orderSummaryList">
+                    <!-- List items will be dynamically added here -->
+                </div>
+                <div id="totalPriceContainer" class="total-price">
+                    <!-- Total price will be displayed here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirmOrderButton">Confirm Order</button>
+            </div>
         </div>
-        <div class="modal-body">
-          <table id="orderSummaryTable">
-            <!-- Table content -->
-          </table>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" id="confirmOrderButton">Confirm Order</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
+
   <!-- Payment Summary Modal -->
  <div class="modal fade" id="paymentSummaryModal" tabindex="-1" aria-labelledby="paymentSummaryModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -164,6 +191,8 @@
         </div>
         <div class="modal-body">
           <p>Select your preferred payment method:</p>
+          <!-- <button onclick="processPayment('mpesa')">Pay with M-Pesa</button> -->
+  
           <div class="list-group">
             <button type="button" class="list-group-item list-group-item-action" onclick="processPayment('paypal')">PayPal</button>
             <button type="button" class="list-group-item list-group-item-action" onclick="processPayment('visa')">Visa Card</button>
@@ -174,22 +203,16 @@
       </div>
     </div>
   </div>
-   <button onclick="processPayment('mpesa')">Pay with M-Pesa</button>
-
-<!-- visa card -->
-  <!-- <form id="payment-form">
-    <div id="card-element">
-      <!-- A Stripe Element will be inserted here. -
-    </div>
-    <!-- Used to display form errors. --
-    <div id="card-errors" role="alert"></div> 
-    <button id="submit">Pay with Visa Card</button>
-  </form>
-  <!-- paypal --
-  <div id="paypal-button-container"></div> --> 
- 
-  <!-- <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID"></script>
-<script src="https://js.stripe.com/v3/"></script> -->
+   <!-- <button onclick="processPayment('mpesa')">Pay with M-Pesa</button>
+   <h1>Rate the Dish</h1>
+   <div class="rating" data-item-id="1" data-item-type="Dish">
+       <span class="star" data-value="5">&#9733;</span>
+       <span class="star" data-value="4">&#9733;</span>
+       <span class="star" data-value="3">&#9733;</span>
+       <span class="star" data-value="2">&#9733;</span>
+       <span class="star" data-value="1">&#9733;</span>
+   </div>
+   <h2 id="average-rating">Average Rating: </h2> -->
 
   <script src="menu.js"></script>
   <script src="cart.js"></script>

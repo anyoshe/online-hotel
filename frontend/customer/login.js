@@ -1,143 +1,102 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const signupLink = document.getElementById('signup-link');
-    const loginModal = document.getElementById('loginModal');
-    const closeModal = document.getElementById('closeModal');
 
-    signupLink.onclick = function(event) {
+document.addEventListener('DOMContentLoaded', () => {
+    const authLink = document.getElementById('auth-link');
+    const authModal = document.getElementById('authModal');
+    const closeModal = document.getElementById('closeModal');
+    const authForm = document.getElementById('auth-form');
+    const authSubmitButton = document.getElementById('auth-submit');
+    const toggleMessage = document.getElementById('toggle-message');
+    const signupFields = document.getElementById('signup-fields');
+    const authTitle = document.getElementById('auth-title');
+    let isSignUp = false;
+
+    authLink.onclick = function(event) {
         event.preventDefault();
-        loginModal.style.display = 'block';
+        authModal.style.display = 'block';
     };
 
     closeModal.onclick = function() {
-        loginModal.style.display = 'none';
+        authModal.style.display = 'none';
     };
 
     window.onclick = function(event) {
-        if (event.target == loginModal) {
-            loginModal.style.display = 'none';
+        if (event.target == authModal) {
+            authModal.style.display = 'none';
         }
     };
 
     document.getElementById('google-login').onclick = function() {
-        window.location.href = '/auth/google'; // Replace with backend route for Google login
+        window.location.href = '/auth/google';
     };
 
     document.getElementById('facebook-login').onclick = function() {
-        window.location.href = '/auth/facebook'; // Replace with backend route for Facebook login
-    };
-
-    document.getElementById('twitter-login').onclick = function() {
-        window.location.href = '/auth/twitter'; // Replace with backend route for Twitter login
+        window.location.href = '/auth/facebook';
     };
 
     document.getElementById('tiktok-login').onclick = function() {
-        window.location.href = '/auth/tiktok'; // Replace with backend route for TikTok login
+        window.location.href = '/auth/tiktok';
     };
 
-    const authForm = document.getElementById('auth-form');
-    const authToggle = document.getElementById('toggle-link');
-    const authSubmitButton = document.getElementById('auth-submit');
-    const toggleMessage = document.getElementById('toggle-message');
-    const confirmPasswordField = document.getElementById('confirm-password');
-    let isSignUp = false;
-
-    authToggle.onclick = function(event) {
+    document.getElementById('toggle-link').onclick = function(event) {
         event.preventDefault();
         isSignUp = !isSignUp;
         if (isSignUp) {
+            authTitle.textContent = 'Sign Up';
             toggleMessage.innerHTML = 'Already have an account? <a href="#" id="toggle-link">Log In</a>';
             authSubmitButton.innerText = 'Sign Up';
-            confirmPasswordField.style.display = 'block';
+            signupFields.style.display = 'block';
         } else {
+            authTitle.textContent = 'Log In';
             toggleMessage.innerHTML = 'Don\'t have an account? <a href="#" id="toggle-link">Sign Up</a>';
             authSubmitButton.innerText = 'Log In';
-            confirmPasswordField.style.display = 'none';
+            signupFields.style.display = 'none';
         }
     };
 
-    // authForm.onsubmit = function(event) {
-    //     event.preventDefault();
-    //     const email = document.getElementById('email').value.trim();
-    //     const password = document.getElementById('password').value.trim();
-    //     const confirmPassword = document.getElementById('confirm-password').value.trim();
-
-    //     document.getElementById('confirm-password').addEventListener('focus', function() {
-    //         this.required = true;
-    //     }, { once: true }); // Set required when the field becomes visible/focusable
-
-    //     if (isSignUp && password !== confirmPassword) {
-    //         alert('Passwords do not match!');
-    //         return;
-    //     }
-        
-       
-    //    console.log(email, password, confirmPassword);
-    //     const endpoint = isSignUp ? 'http://localhost:3000/api/auth/signup' : 'http://localhost:3000/api/auth/login';
-
-    //     fetch(endpoint, { 
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //         },
-    //         body: JSON.stringify({ email, password, confirmPassword: isSignUp ? confirmPassword : undefined }),
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data);
-    //         if (data.success) {
-    //             alert('Log in successful');
-    //             // Handle successful authentication (e.g., redirect or update UI)
-    //             window.location.href = 'menu.html';
-    //         } else {
-    //             alert('Authentication failed: ' + data.message);
-    //         }
-    //     })
-    //     .catch(error => console.error('Error:', error));
-    // };
     authForm.onsubmit = function(event) {
         event.preventDefault();
-      
+
+        const username = document.getElementById('username').value.trim();
+        const names = document.getElementById('names').value.trim();
         const email = document.getElementById('email').value.trim();
+        const phoneNumber = document.getElementById('phoneNumber').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirm-password').value.trim();
+
         if (isSignUp && password !== confirmPassword) {
-          alert('Passwords do not match!');
-          return;
+            alert('Passwords do not match!');
+            return;
         }
-      
-        // Only send necessary data based on signup/login state
-        const body = {
-          email,
-          password,
-        };
+
+        const body = { username, password };
         if (isSignUp) {
-          body.confirmPassword = confirmPassword;
+            body.names = names;
+            body.email = email;
+            body.phoneNumber = phoneNumber;
+            body.confirmPassword = confirmPassword;
         }
-      
+
         const endpoint = isSignUp ? 'http://localhost:3000/api/auth/signup' : 'http://localhost:3000/api/auth/login';
-      
+
         fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
         })
         .then(response => response.json())
         .then(data => {
-          if (data.success) {
-            alert('Authentication successful');
-            // Handle successful authentication (e.g., redirect or update UI)
-            if (isSignUp) {
-              // Handle successful signup (e.g., redirect to login page)
+            if (data.success) {
+                alert('Authentication successful');
+                if (!isSignUp) {
+                    localStorage.setItem('token', data.token);
+                    window.location.href = 'menu.html';
+                }
             } else {
-              window.location.href = 'menu.html'; // Redirect to menu.html on successful login
+                alert('Authentication failed: ' + data.message);
             }
-          } else {
-            alert('Authentication failed: ' + data.message);
-          }
         })
         .catch(error => console.error('Error:', error));
-      };
-    
+    };
 });

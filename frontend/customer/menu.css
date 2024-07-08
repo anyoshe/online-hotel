@@ -19,13 +19,20 @@ body {
   color: #332f71;
   background-color: #ffedbf;
   top: 0;
-  padding: 10px;
+  width: 100%;
+  z-index: 2;
+  position: fixed;
+  padding: 5px;
+  
 }
 #dish-categories {
   text-align: left;
   font-size: 1.2rem;
   color: #eb2106;
   margin-left: 10px;
+}
+#dish-categories h5 {
+  margin-left: 2%;
 }
 
 h3 {
@@ -41,7 +48,7 @@ h3 {
   display: flex;
   justify-content: space-evenly;
   font-size: 15px;
-  margin-top: 15px;
+  margin-top: 7%;
 }
 select {
   padding: 5px;
@@ -51,7 +58,8 @@ select {
 #popular-dishes,
 #recent-searches,
 #new-dishes,
-#all-dishes {
+#all-dishes,
+#popular-restaurants {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -60,18 +68,23 @@ select {
 #popular-dishes li,
 #recent-searches li,
 #new-dishes li,
-#all-dishes li {
-  margin: 10px;
+#all-dishes li,
+#popular-restaurants li {
+  margin: 5px;
   border: 1px solid gray;
   text-align: center;
-  width: 12em;
+  width: 21em;
   list-style: none;
-  height: auto;
+  /* height: 400px; */
 }
 .dish-card img {
   width: 100%;
-  height: 130px;
+  height: 200px;
 } 
+.restaurant-card p {
+  text-align: center;
+  color: black;
+}
 #cart2 img {
   width: 30px;
   height: 20px;
@@ -95,7 +108,7 @@ a:hover {
    flex-direction: column;
    text-align: center;
    width: 50%;
-   margin: 10px auto;
+   margin: 20px auto;
    justify-content: center;
    align-content: center;
    align-items: center; 
@@ -115,7 +128,7 @@ input {
 .modalOrder {
   display: none; 
   position: fixed; 
-  z-index: 1; 
+  z-index: 2; 
   left: 0;
   top: 0;
   width: 100%; 
@@ -203,7 +216,8 @@ li {
    display: flex;
    flex-direction: column;
    color: black;
-   line-height: 1;
+   /* line-height: 0.8; */
+   font-size: 12px;
 }
 .dish-card button {
    background-color: #eb2106;
@@ -212,12 +226,18 @@ li {
    padding: 5px;
    text-align: center;
    text-decoration: none;
-   font-size: 17px;
+   font-size: 12px;
    border-radius: 5px;
    cursor: pointer; 
-   margin: 10px;
+   margin: 5px;
    /* box-shadow: 0 3px 4px 0; */
   } 
+  .dish-card p	 {
+    margin-bottom: 2px;
+    color: black;
+    text-transform: lowercase;
+    text-transform: capitalize;
+  }
   p #restaurant {
     background-color: #007bff;
   } 
@@ -274,11 +294,168 @@ li {
    margin-top: 20px;
  } */
 
-    
+/* Ensure the modal content is wide enough to accommodate the table */
+/* .modal-dialog {
+  max-width: 90%;
+}
 
+.modal-content {
+  padding: 20px;
+}
 
+.table thead th {
+  text-align: center;
+}
 
+.table tbody td {
+  text-align: center;
+  vertical-align: middle;
+}
 
+.table tbody td button {
+  margin: 0 5px;
+}
+
+.table tbody td.actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table tbody td.actions button {
+  flex: 1;
+}
+
+.table tbody td.actions .quantity {
+  flex: 0 0 40px;
+  text-align: center;
+} */
+/* Ensure the modal content is wide enough to accommodate the list */
+.modal-dialog {
+  max-width: 90%;
+}
+
+.modal-content {
+  padding: 10px;
+}
+
+#orderSummaryList {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.order-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.order-summary-item .item-details {
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-summary-item .item-actions {
+  display: flex;
+  align-items: center;
+}
+
+.order-summary-item button {
+  margin: 0 5px;
+}
+
+.total-price {
+  margin-top: 20px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.star {
+  font-size: 25px;
+  cursor: pointer;
+  color: gray;
+}
+.star:hover, .star:hover ~ .star.star.selected {
+  color: gold;
+}
+.star.selected {
+  color: gold;
+}
+
+.dish-card, .restaurant-card {
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin: 10px;
+}
+.modal-category {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+}
+
+ .modal-content-category {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+} 
+
+.close-category {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close-category,
+.close-category {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+#dishContainer ul {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center; 
+}
+ #dishContainer ul li  {
+  width: 21em;
+  justify-content: center; 
+} 
+ #dishContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+} 
+#dishesModal {
+  margin: 5% auto;
+
+}
+
+#dishesModalContent ul {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+#dishesModalContent ul li {
+  width: 21em;
+  justify-content: center;
+}
 
  @media screen and (max-width: 600px) {
    .modal-content {
@@ -288,8 +465,9 @@ li {
     .modal-content-order {
       width: 100%;
     }
-    .modalOrder #orderForm {
+    .modalOrder #orderForm { 
       width: 100%;
     }
   }
    
+ 

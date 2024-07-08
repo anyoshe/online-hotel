@@ -18,21 +18,47 @@ const upload = multer({
   }
 }).single('image');
 
+// Setup for multiple file uploads (for conference spaces)
+const conferenceStorage = multer.diskStorage({
+  destination: './uploads/conferences', // Directory to save conference files
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const uploadMultiple = multer({
+  storage: conferenceStorage,
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  }
+}).fields([
+  { name: 'venueImages', maxCount: 5 }, 
+  { name: 'videoTours', maxCount: 1 }, 
+  { name: 'floorPlans', maxCount: 1 }
+]);
+
+
 // Check file type
 function checkFileType(file, cb) {
   // Allowed file extensions
   const filetypes = /jpeg|jpg|png|gif/;
+   // Allowed file extensions for videos
+   const videoFiletypes = /mp4|webm|ogg/;
   // Check extension
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  // Check if the file is a video
+  const isVideo = videoFiletypes.test(path.extname(file.originalname).toLowerCase());
   // Check MIME type
   const mimetype = filetypes.test(file.mimetype);
+  const videoMimetype = videoFiletypes.test(file.mimetype);
 
-  if (mimetype && extname) {
+  if ((mimetype && extname) || (isVideo && videoMimetype)) {
     return cb(null, true);
   } else {
-    cb('Error: Images Only!');
+    cb(new Error('Error: Images and Videos Only!'));
     
   }
 }
 
-module.exports = upload;
+
+module.exports = { upload, uploadMultiple };

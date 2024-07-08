@@ -233,13 +233,26 @@ label {
   width: 100%;
 }
 #ordersList button {
-  width: 100%;
+  width: 80%;
   border: none;
   justify-content: center;
   align-content: center;
   align-items: center;
-  /* background-color: #ED0800; */
-  border: 1px solid #ed0800;
+  /* background-color: #ED0800;
+  border: 1px solid #ed0800; */
+}
+ .order-status-btn {
+  background-color: #007bff; /* Example blue background */
+  color: white; /* White text */
+  padding: 5px; /* Padding around the text */
+  border: none; /* No border */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 12px; /* Font size */
+  border-radius: 5px; /* Rounded corners */
+} 
+
+.order-status-btn:hover {
+  background-color: #0056b3; /* Darker shade on hover */
 }
 .hidden {
   display: none;
@@ -539,4 +552,55 @@ h3 {
 }
 #salesList h3 span {
   text-transform: capitalize;
+}
+
+/* loading signal */
+/* .hidden {
+  display: none;
+} */
+#loadingIndicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #333;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+      transform: rotate(360deg);
+  }
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tr:hover {
+  background-color: #ddd;
+}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  background-color: #4CAF50;
+  color: white;
 }

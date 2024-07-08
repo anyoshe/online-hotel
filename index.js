@@ -15,8 +15,8 @@ const path = require('path');
 const mongoString = process.env.DATABASE_URL;
  mongoose.connect(mongoString);
 const database = mongoose.connection
-
-
+const multer = require('multer');
+const { upload, uploadMultiple } = require('./config/multer');
 //M-Pesa credentials
 const consumerKey = 'qQwrKakcvG7xbcsm3ml5RYaxCrpAZADQxepMd2XdaGF7qtAi';
 const consumerSecret = 'UablzGVv3McnA6YIve1SdyGGelzAfVcqEXAVknvPa4JPyVYhIZCf7ClBXd4PURXz';
